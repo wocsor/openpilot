@@ -20,8 +20,8 @@ const mat3 intrinsic_matrix = (mat3){{
 }};
 
 const uint8_t alert_colors[][4] = {
-  [STATUS_STOPPED] = {0x07, 0x23, 0x39, 0xf1},
-  [STATUS_DISENGAGED] = {0x17, 0x33, 0x49, 0xc8},
+  [STATUS_STOPPED] = {0x0, 0x0, 0x0, 0xf1}, // 0x07, 0x23, 0x39, 0xf1
+  [STATUS_DISENGAGED] = {0x0, 0x0, 0x0, 0xc8},
   [STATUS_ENGAGED] = {0x17, 0x86, 0x44, 0xf1},
   [STATUS_WARNING] = {0xDA, 0x6F, 0x25, 0xf1},
   [STATUS_ALERT] = {0xC9, 0x22, 0x31, 0xf1},
@@ -301,7 +301,7 @@ static void draw_frame(UIState *s) {
     glBindTexture(GL_TEXTURE_2D, s->frame_texs[s->cur_vision_idx]);
     #ifndef QCOM
       // TODO: a better way to do this?
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1164, 874, 0, GL_RGB, GL_UNSIGNED_BYTE, s->priv_hnds[s->cur_vision_idx]);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1164, 874, 0, GL_RED, GL_UNSIGNED_BYTE, s->priv_hnds[s->cur_vision_idx]);
     #endif
   }
 
@@ -456,7 +456,7 @@ static void ui_draw_vision_maxspeed(UIState *s) {
   if (is_set_over_limit) {
     nvgFillColor(s->vg, nvgRGBA(218, 111, 37, 180));
   } else {
-    nvgFillColor(s->vg, nvgRGBA(0, 0, 0, 100));
+    nvgFillColor(s->vg, nvgRGBA(0, 0, 0, 255));
   }
   nvgFill(s->vg);
 
@@ -662,7 +662,7 @@ static void ui_draw_vision_event(UIState *s) {
       } else if (is_warning) {
         nvgFillColor(s->vg, nvgRGBA(218, 111, 37, 255));
       } else if (is_engageable) {
-        nvgFillColor(s->vg, nvgRGBA(23, 51, 73, 255));
+        nvgFillColor(s->vg, nvgRGBA(0, 0, 0, 255)); //23, 51, 73
       }
       nvgFill(s->vg);
       img_wheel_alpha = 1.0f;

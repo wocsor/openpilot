@@ -233,7 +233,7 @@ def thermald_thread():
     max_cpu_temp = max(msg.thermal.cpu0, msg.thermal.cpu1,
                        msg.thermal.cpu2, msg.thermal.cpu3) / 10.0
     max_comp_temp = max(max_cpu_temp, msg.thermal.mem / 10., msg.thermal.gpu / 10.)
-    bat_temp = msg.thermal.bat / 1000.
+    bat_temp = 0. #msg.thermal.bat / 1000.
 
     fan_speed = handle_fan(max_cpu_temp, bat_temp, fan_speed, ignition)
     msg.thermal.fanSpeed = fan_speed
