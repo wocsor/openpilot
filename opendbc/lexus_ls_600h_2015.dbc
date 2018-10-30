@@ -1,0 +1,87 @@
+VERSION ""
+
+
+NS_ :
+    NS_DESC_
+    CM_
+    BA_DEF_
+    BA_
+    VAL_
+    CAT_DEF_
+    CAT_
+    FILTER
+    BA_DEF_DEF_
+    EV_DATA_
+    ENVVAR_DATA_
+    SGTYPE_
+    SGTYPE_VAL_
+    BA_DEF_SGTYPE_
+    BA_SGTYPE_
+    SIG_TYPE_REF_
+    VAL_TABLE_
+    SIG_GROUP_
+    SIG_VALTYPE_
+    SIGTYPE_VALTYPE_
+    BO_TX_BU_
+    BA_DEF_REL_
+    BA_REL_
+    BA_DEF_DEF_REL_
+    BU_SG_REL_
+    BU_EV_REL_
+    BU_BO_REL_
+    SG_MUL_VAL_
+
+BS_:
+
+BU_: XXX +
+
+
+BO_ 176 WHEEL_SPEED_1: 8 XXX
+ SG_ WHEEL_1 : 7|16@0+ (1,0) [0|65535] "" XXX
+ SG_ WHEEL_2 : 23|16@0+ (1,0) [0|65535] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 178 WHEEL_SPEED_2: 8 XXX
+ SG_ WHEEL_3 : 7|16@0+ (1,0) [0|65535] "" XXX
+ SG_ WHEEL_4 : 23|16@0+ (1,0) [0|65535] "" XXX
+ SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 384 STEERING_LKA: 8 XXX
+ SG_ CHECKSUM : 39|8@0+ (1,0) [0|255] "" XXX
+ SG_ LKA_STATE : 31|8@0+ (1,0) [0|255] "" XXX
+ SG_ LKA_TORQUE_CMD : 15|16@0+ (1,0) [0|65535] "" XXX
+ SG_ SET_ME_1 : 7|1@0+ (1,0) [0|1] "" XXX
+ SG_ STEER_REQUEST : 0|1@0+ (1,0) [0|1] "" XXX
+ SG_ COUNTER : 6|6@0+ (1,0) [0|63] "" XXX
+
+BO_ 1568 SEATS_DOORS: 8 XXX
+ SG_ DOOR_OPEN_FL : 42|1@0+ (1,0) [0|1] "" XXX
+ SG_ SEATBELT_DRIVER_UNLATCHED : 62|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_OPEN_RL : 45|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_OPEN_RR : 43|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_OPEN_FR : 44|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 37 STEER_ANGLE_SENSOR: 8 XXX
+ SG_ STEER_ANGLE : 3|12@0- (1.5,0) [-500|500] "deg" XXX
+ SG_ STEER_FRACTION : 39|4@0- (0.1,0) [-0.7|0.7] "deg" XXX
+ SG_ STEER_RATE : 35|12@0- (1,0) [-2000|2000] "deg/s" XXX
+
+BO_ 1552 SPEED: 8 XXX
+ SG_ SPEED : 23|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 948 GEAR_PACKET: 8 XXX
+ SG_ GEAR : 39|5@0+ (1,0) [0|15] "" XXX
+
+BO_ 272 PCM_CRUISE: 8 XXX
+ SG_ MAIN_ON : 31|1@0+ (1,0) [0|1] "" XXX
+
+BO_ 1673 PCM_CRUISE: 8 XXX
+ SG_ MAIN_ON : 28|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_SPEED : 32|8@1+ (1,0) [0|255] "" XXX
+ SG_ ACC_ENGAGED : 17|1@0+ (1,0) [0|1] "" XXX
+
+
+
+
+
+VAL_ 948 GEAR 0 "D" 4 "N" 8 "R" 16 "P" ;

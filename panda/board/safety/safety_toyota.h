@@ -48,9 +48,10 @@ static void toyota_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   }
 
   // enter controls on rising edge of ACC, exit controls on ACC off
-  if ((to_push->RIR>>21) == 0x1D2) {
-    // 4 bits: 55-52
-    int cruise_engaged = to_push->RDHR & 0xF00000;
+
+  if ((to_push->RIR>>21) == 0x689) {
+    // 1 bit - 17
+    int cruise_engaged = to_push->RDHR & 0x20000;
     if (cruise_engaged && !toyota_cruise_engaged_last) {
       controls_allowed = 1;
     } else if (!cruise_engaged) {
@@ -65,8 +66,8 @@ static void toyota_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     toyota_no_dsu_car = 1;
   }
 
-  // 0x2E4 is lkas cmd. If it is on bus 0, then giraffe switch 1 is high
-  if ((to_push->RIR>>21) == 0x2E4 && (bus == 0)) {
+  // 0x180 is lkas cmd. If it is on bus 0, then giraffe switch 1 is high
+  if ((to_push->RIR>>21) == 0x180 && (bus == 0)) {
     toyota_giraffe_switch_1 = 1;
   }
 
@@ -93,7 +94,8 @@ static int toyota_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     }
 
     // STEER: safety check on bytes 2-3
-    if ((to_send->RIR>>21) == 0x2E4) {
+    //Steering is 0x180 on Lexus LS 600h
+    if ((to_send->RIR>>21) == 0x180) {
       int desired_torque = (to_send->RDLR & 0xFF00) | ((to_send->RDLR >> 16) & 0xFF);
       desired_torque = to_signed(desired_torque, 16);
       int violation = 0;
@@ -158,7 +160,7 @@ static int toyota_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   // forward cam to radar and viceversa if car is dsu-less, except lkas cmd and hud
   if ((bus_num == 0 || bus_num == 2) && toyota_no_dsu_car && !toyota_giraffe_switch_1) {
     int addr = to_fwd->RIR>>21;
-    bool is_lkas_msg = (addr == 0x2E4 || addr == 0x412) && bus_num == 2;
+    bool is_lkas_msg = (addr == 0x180) && bus_num == 2;
     return is_lkas_msg? -1 : (uint8_t)(~bus_num & 0x2);
   }
   return -1;
