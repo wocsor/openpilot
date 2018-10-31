@@ -1,5 +1,7 @@
 from selfdrive.car import dbc_dict
 
+# WARNING! LIKELY BREAKS EVERY OTHER CAR BESIDES LEXUS LS 600H!
+
 class CAR:
   PRIUS = "TOYOTA PRIUS 2017"
   RAV4H = "TOYOTA RAV4 HYBRID 2017"
@@ -12,6 +14,7 @@ class CAR:
   CAMRYH = "TOYOTA CAMRY HYBRID 2018"
   HIGHLANDER = "TOYOTA HIGHLANDER 2017"
   HIGHLANDERH = "TOYOTA HIGHLANDER HYBRID 2018"
+  LEXUS_LS = "LEXUS LX 600H 2015"
 
 
 class ECU:
@@ -19,7 +22,7 @@ class ECU:
   DSU = 1 # driving support unit
   APGS = 2 # advanced parking guidance system
 
-
+# no static messages on Lexus since it's forwarded like Camry
 # addr: (ecu, cars, bus, 1/freq*100, vl)
 STATIC_MSGS = [
   (0x130, ECU.CAM, (CAR.PRIUS, CAR.RAV4H, CAR.LEXUS_RXH, CAR.RAV4, CAR.COROLLA, CAR.HIGHLANDER, CAR.HIGHLANDERH), 1, 100, '\x00\x00\x00\x00\x00\x00\x38'),
@@ -136,6 +139,9 @@ FINGERPRINTS = {
   CAR.HIGHLANDERH: [{
     36: 8, 37: 8, 170: 8, 180: 8, 296: 8, 426: 6, 452: 8, 466: 8, 467: 8, 550: 8, 552: 4, 560: 7, 581: 5, 608: 8, 610: 5, 643: 7, 713: 8, 740: 5, 800: 8, 835: 8, 836: 8, 849: 4, 869: 7, 870: 7, 871: 2, 896: 8, 897: 8, 900: 6, 902: 6, 905: 8, 911: 8, 916: 3, 918: 7, 921: 8, 933: 8, 944: 8, 945: 8, 950: 8, 951: 8, 953: 3, 955: 8, 956: 8, 979: 2, 998: 5, 999: 7, 1000: 8, 1001: 8, 1005: 2, 1014: 8, 1017: 8, 1020: 8, 1041: 8, 1042: 8, 1043: 8, 1044: 8, 1056: 8, 1059: 1, 1112: 8, 1114: 8, 1161: 8, 1162: 8, 1163: 8, 1176: 8, 1177: 8, 1178: 8, 1179: 8, 1180: 8, 1181: 8, 1184: 8, 1185: 8, 1186: 8, 1189: 8, 1190: 8, 1191: 8, 1192: 8, 1196: 8, 1197: 8, 1198: 8, 1199: 8, 1206: 8, 1212: 8, 1227: 8, 1232: 8, 1235: 8, 1237: 8, 1264: 8, 1279: 8, 1552: 8, 1553: 8, 1554: 8, 1556: 8, 1557: 8, 1561: 8, 1562: 8, 1568: 8, 1569: 8, 1570: 8, 1571: 8, 1572: 8, 1584: 8, 1589: 8, 1592: 8, 1593: 8, 1595: 8, 1599: 8, 1656: 8, 1728: 8, 1745: 8, 1779: 8, 1904: 8, 1912: 8, 1990: 8, 1998: 8
   }],
+  CAR.LEXUS_LS: [{
+    32: 7, 36: 8, 37: 8, 40: 8, 55: 4, 57: 5, 166: 8, 176: 8, 178: 8, 180: 8, 182: 4, 184: 8, 288: 7, 292: 8, 294: 8, 296: 8, 548: 8, 560: 7, 564: 8, 566: 4, 580: 7, 608: 8, 610: 5, 620: 5, 622: 8, 623: 8, 710: 3, 744: 3, 800: 8, 810: 2, 812: 2, 845: 7, 900: 6, 902: 6, 905: 8, 916: 1, 917: 3, 918: 7, 919: 1, 924: 1, 929: 8, 944: 6, 945: 8, 948: 8, 956: 8, 968: 6, 975: 5, 991: 1, 998: 5, 1014: 8, 1017: 8, 1056: 8, 1059: 1, 1112: 8, 1187: 8, 1193: 8, 1195: 8, 1217: 8, 1219: 8, 1221: 8, 1222: 8, 1223: 8, 1224: 8, 1226: 8, 1228: 8, 1232: 8, 1236: 8, 1237: 8, 1241: 8, 1260: 8, 1552: 8, 1568: 8, 1570: 8, 1572: 8, 1602: 8, 1616: 8, 1744: 8, 1752: 8, 1904: 8, 1990: 8
+  }]
 }
 
 STEER_THRESHOLD = 100
@@ -152,6 +158,7 @@ DBC = {
   CAR.CAMRYH: dbc_dict('toyota_camry_hybrid_2018_pt_generated', 'toyota_prius_2017_adas'),
   CAR.HIGHLANDER: dbc_dict('toyota_highlander_2017_pt_generated', 'toyota_prius_2017_adas'),
   CAR.HIGHLANDERH: dbc_dict('toyota_highlander_hybrid_2018_pt_generated', 'toyota_prius_2017_adas'),
+  CAR.LEXUS_LS: dbc_dict('lexus_ls_600h_2015', 'toyota_prius_2017_adas'),
 }
 
-NO_DSU_CAR = [CAR.CHR, CAR.CHRH, CAR.CAMRY, CAR.CAMRYH]
+NO_DSU_CAR = [CAR.CHR, CAR.CHRH, CAR.CAMRY, CAR.CAMRYH, CAR.LEXUS_LS]
