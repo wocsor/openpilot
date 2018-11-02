@@ -62,12 +62,12 @@ static void toyota_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
   int bus = (to_push->RDTR >> 4) & 0xF;
   // 0x680 is a radar msg only found in dsu-less cars
-  if ((to_push->RIR>>21) == 0x680 && (bus == 1)) {
+  if ((to_push->RIR>>21) == 0x680 && (bus == 2)) {
     toyota_no_dsu_car = 1;
   }
 
-  // 0x180 is lkas cmd. If it is on bus 0, then giraffe switch 1 is high
-  if ((to_push->RIR>>21) == 0x180 && (bus == 0)) {
+  // 0x2e4 is lkas cmd. If it is on bus 0, then giraffe switch 1 is high
+  if ((to_push->RIR>>21) == 0x2e4 && (bus == 0)) {
     toyota_giraffe_switch_1 = 1;
   }
 

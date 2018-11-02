@@ -4,7 +4,7 @@ from cereal import car, log
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import EventTypes as ET, create_event
 from selfdrive.controls.lib.vehicle_model import VehicleModel
-from selfdrive.car.toyota.carstate import CarState, get_can_parser
+from selfdrive.car.toyota.carstate import CarState, get_can_parser, get_can_parser_msbus
 from selfdrive.car.toyota.values import ECU, check_ecu_msgs, CAR
 from selfdrive.swaglog import cloudlog
 
@@ -13,6 +13,11 @@ try:
 except ImportError:
   CarController = None
 
+class CanBus(object):
+  def __init__(self):
+   self.driving = 0
+   self.msbus = 1
+   self.steering = 2
 
 class CarInterface(object):
   def __init__(self, CP, sendcan=None):
@@ -28,7 +33,9 @@ class CarInterface(object):
     # *** init the major players ***
     self.CS = CarState(CP)
 
+    #can parsers check for signals by bus. Lexus has 3 for car control
     self.cp = get_can_parser(CP)
+    self.cp_msbus = get_can_parser_msbus(CP)
 
     # sending if read only is False
     if sendcan is not None:
@@ -144,6 +151,16 @@ class CarInterface(object):
       ret.steerKpV, ret.steerKiV = [[0.6], [0.05]]
       ret.steerKf = 0.00006
 
+    elif candidate == CAR.LEXUS_LS:
+      stop_and_go = True
+      ret.safetyParam = 100 # see conversion factor for STEER_TORQUE_EPS in dbc file
+      ret.wheelbase = 3.09
+      ret.steerRatio = 16.  # 14.8 is spec end-to-end
+      tire_stiffness_factor = 0.444  # not optimized yet
+      ret.mass = 5115 * CV.LB_TO_KG + std_cargo  # mean between min and max
+      ret.steerKpV, ret.steerKiV = [[0.6], [0.1]]
+      ret.steerKf = 0.00006   # full torque for 10 deg at 80mph means 0.00007818594
+
     ret.steerRateCost = 1.
     ret.centerToFront = ret.wheelbase * 0.44
 
@@ -215,8 +232,9 @@ class CarInterface(object):
     canMonoTimes = []
 
     self.cp.update(int(sec_since_boot() * 1e9), False)
+    self.cp_msbus.update(int(sec_since_boot() * 1e9), False)
 
-    self.CS.update(self.cp)
+    self.CS.update(self.cp, self.cp_msbus)
 
     # create message
     ret = car.CarState.new_message()
