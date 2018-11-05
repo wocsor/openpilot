@@ -61,7 +61,8 @@ def create_steer_command(packer, steer, steer_req, raw_cnt):
     "COUNTER": raw_cnt,
     "SET_ME_1": 1,
   }
-  return packer.make_can_msg("STEERING_LKA", 0, values)
+  #address, bus, values
+  return packer.make_can_msg("STEERING_LKA", 2, values)
 
 
 def create_accel_command(packer, accel, pcm_cancel, standstill_req):

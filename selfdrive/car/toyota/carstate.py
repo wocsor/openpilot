@@ -18,8 +18,8 @@ def get_can_parser(CP):
 
   signals = [
     # sig_name, sig_address, default
-    ("GEAR", "GEAR_PACKET", 0),
-    #("BRAKE_PRESSED", "BRAKE_MODULE_2", 0),
+    ("GEAR", "GEAR_PACKET", 32),
+    ("BRAKE_PRESSED", "BRAKE_MODULE_2", 0),
     #("GAS_PEDAL", "GAS_PEDAL", 0), on msbus
     ("FR", "WHEEL_SPEED_1", 0),
     ("FL", "WHEEL_SPEED_1", 0),
@@ -32,8 +32,8 @@ def get_can_parser(CP):
     ("SEATBELT_DRIVER_UNLATCHED", "SEATS_DOORS", 1),
     #("TC_DISABLED", "ESP_CONTROL", 1),
     ("STEER_ANGLE", "STEER_ANGLE_SENSOR", 0),
-    ("STEER_FRACTION", "STEER_ANGLE_SENSOR", 0),
-    ("STEER_RATE", "STEER_ANGLE_SENSOR", 0),
+    #("STEER_FRACTION", "STEER_ANGLE_SENSOR", 0),
+    ("STEER_RATE", "STEER_SENSOR2", 0),
     #("GAS_RELEASED", "PCM_CRUISE", 0),
     #("ACC_ENGAGED", "PCM_CRUISE", 0), on msbus
     #("MAIN_ON", "PCM_CRUISE", 0),
@@ -55,6 +55,7 @@ def get_can_parser(CP):
     ("WHEEL_SPEED_1", 80),
     ("WHEEL_SPEED_2", 80),
     ("STEER_ANGLE_SENSOR", 80),
+    ("STEER_SENSOR2", 80),
     #("PCM_CRUISE", 33),
     #("PCM_CRUISE_2", 33),
     ("STEER_TORQUE_SENSOR", 50),
@@ -145,8 +146,8 @@ class CarState(object):
     self.a_ego = float(v_ego_x[1])
     self.standstill = not self.v_wheel > 0.001
 
-    self.angle_steers = cp.vl["STEER_ANGLE_SENSOR"]['STEER_ANGLE'] + cp.vl["STEER_ANGLE_SENSOR"]['STEER_FRACTION']
-    self.angle_steers_rate = cp.vl["STEER_ANGLE_SENSOR"]['STEER_RATE']
+    self.angle_steers = cp.vl["STEER_ANGLE_SENSOR"]['STEER_ANGLE'] # + cp.vl["STEER_ANGLE_SENSOR"]['STEER_FRACTION']
+    self.angle_steers_rate = cp.vl["STEER_SENSOR2"]['STEER_RATE']
     can_gear = int(cp.vl["GEAR_PACKET"]['GEAR'])
     self.gear_shifter = parse_gear_shifter(can_gear, self.shifter_values)
     self.main_on = cp_msbus.vl["PCM_CRUISE"]['MAIN_ON']

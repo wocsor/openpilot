@@ -215,11 +215,11 @@ class CarController(object):
       can_sends.append(create_ipas_steer_command(self.packer, 0, 0, True))
 
     # accel cmd comes from DSU, but we can spam can to cancel the system even if we are using lat only control
-    if (frame % 3 == 0 and ECU.DSU in self.fake_ecus) or (pcm_cancel_cmd and ECU.CAM in self.fake_ecus):
-      if ECU.DSU in self.fake_ecus:
-        can_sends.append(create_accel_command(self.packer, apply_accel, pcm_cancel_cmd, self.standstill_req))
-      else:
-        can_sends.append(create_accel_command(self.packer, 0, pcm_cancel_cmd, False))
+#    if (frame % 3 == 0 and ECU.DSU in self.fake_ecus) or (pcm_cancel_cmd and ECU.CAM in self.fake_ecus):
+#      if ECU.DSU in self.fake_ecus:
+#        can_sends.append(create_accel_command(self.packer, apply_accel, pcm_cancel_cmd, self.standstill_req))
+#      else:
+#        can_sends.append(create_accel_command(self.packer, 0, pcm_cancel_cmd, False))
 		
     if CS.CP.enableGasInterceptor:
         # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
@@ -243,9 +243,9 @@ class CarController(object):
     else:
       send_ui = False
 
-    if (frame % 100 == 0 or send_ui) and ECU.CAM in self.fake_ecus:
-      can_sends.append(create_ui_command(self.packer, steer, sound1, sound2))
-      can_sends.append(create_fcw_command(self.packer, fcw))
+#    if (frame % 100 == 0 or send_ui) and ECU.CAM in self.fake_ecus:
+#      can_sends.append(create_ui_command(self.packer, steer, sound1, sound2))
+#      can_sends.append(create_fcw_command(self.packer, fcw))
 
     #*** static msgs ***
 
@@ -264,6 +264,5 @@ class CarController(object):
           vl += chr(cnt)
 
         can_sends.append(make_can_msg(addr, vl, bus, False))
-
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
