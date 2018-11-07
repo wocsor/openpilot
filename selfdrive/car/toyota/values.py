@@ -22,7 +22,6 @@ class ECU:
   DSU = 1 # driving support unit
   APGS = 2 # advanced parking guidance system
 
-# no static messages on Lexus since it's forwarded like Camry
 # addr: (ecu, cars, bus, 1/freq*100, vl)
 STATIC_MSGS = [
 #  (0x130, ECU.CAM, (CAR.PRIUS, CAR.RAV4H, CAR.LEXUS_RXH, CAR.RAV4, CAR.COROLLA, CAR.HIGHLANDER, CAR.HIGHLANDERH), 1, 100, '\x00\x00\x00\x00\x00\x00\x38'),
@@ -40,11 +39,11 @@ STATIC_MSGS = [
  # (0x48b, ECU.CAM, (CAR.PRIUS, CAR.RAV4H, CAR.LEXUS_RXH, CAR.RAV4, CAR.COROLLA, CAR.HIGHLANDER, CAR.HIGHLANDERH), 0, 100, '\x66\x06\x08\x0a\x02\x00\x00\x00'),
  # (0x4d3, ECU.CAM, (CAR.PRIUS, CAR.RAV4H, CAR.LEXUS_RXH, CAR.RAV4, CAR.COROLLA), 0, 100, '\x1C\x00\x00\x01\x00\x00\x00\x00'),
 
-#  (0x281, ECU.DSU, (CAR.LEXUS_LS), 2, 40, '\x00\xff\x00\x00\x00\x88'),
-#  (0x282, ECU.DSU, (CAR.LEXUS_LS), 2, 40, '\x00\x00\x87'),
-#  (0x181, ECU.DSU, (CAR.LEXUS_LS), 2, 100, '\x20\x00\x00\x00\x00\xa8'),
-#  (0x182, ECU.DSU, (CAR.LEXUS_LS), 2, 100, '\x07\xf0\xff\x7f\x00\x0e\x0d'),
-#  (0x185, ECU.DSU, (CAR.LEXUS_LS), 2, 100, '\x00\x00\x00\x00\x00\x00\x0a\x98'),
+  (0x281, ECU.DSU, (CAR.LEXUS_LS), 2, 40, '\x00\xff\x00\x00\x00\x88'),
+  (0x282, ECU.DSU, (CAR.LEXUS_LS), 2, 40, '\x40\x01\xc8'),
+  (0x181, ECU.DSU, (CAR.LEXUS_LS), 2, 100, '\x20\x00\x00\x00\x00\xa8'),
+  (0x182, ECU.DSU, (CAR.LEXUS_LS), 2, 100, '\x07\xf0\xff\x7f\x00\x0e\x0d'),
+  (0x185, ECU.DSU, (CAR.LEXUS_LS), 2, 100, '\x00\x00\x00\x00\x00\x00\x0a\x98'),
 
  # (0x128, ECU.DSU, (CAR.PRIUS, CAR.RAV4H, CAR.LEXUS_RXH, CAR.RAV4, CAR.COROLLA), 1,   3, '\xf4\x01\x90\x83\x00\x37'),
  # (0x128, ECU.DSU, (CAR.HIGHLANDER, CAR.HIGHLANDERH), 1,   3, '\x03\x00\x20\x00\x00\x52'),
