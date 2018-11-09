@@ -1,4 +1,4 @@
-int toyota_no_dsu_car = 0;                // ch-r and camry don't have the DSU
+int toyota_no_dsu_car = 1;                // ch-r and camry don't have the DSU
 int toyota_giraffe_switch_1 = 0;          // is giraffe switch 1 high?
 
 // global torque limit
@@ -68,7 +68,7 @@ static void toyota_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
   // 0x2e4 is lkas cmd. If it is on bus 0, then giraffe switch 1 is high
   if ((to_push->RIR>>21) == 0x180 && (bus == 0)) {
-    toyota_giraffe_switch_1 = 1;
+    toyota_giraffe_switch_1 = 0;
   }
 
 }
@@ -160,7 +160,7 @@ static int toyota_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   // block all msgs coming from the dsu
   if ((bus_num == 0 || bus_num == 2) && toyota_no_dsu_car && !toyota_giraffe_switch_1) {
     int addr = to_fwd->RIR>>21;
-    bool is_lkas_msg = (addr >= 0x180) bus_num == 2;
+    bool is_lkas_msg = (addr == 0x180) && bus_num == 2;
     //(addr == 0x180 || addr == 0x182 || addr == 0x182 || addr == 0x281 || addr == 0x282) && bus_num == 2;
     return is_lkas_msg? -1 : (uint8_t)(~bus_num & 0x2);
   }

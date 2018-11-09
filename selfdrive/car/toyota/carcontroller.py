@@ -249,20 +249,20 @@ class CarController(object):
 
     #*** static msgs ***
 
-    for (addr, ecu, cars, bus, fr_step, vl) in STATIC_MSGS:
-      if frame % fr_step == 0 and ecu in self.fake_ecus and self.car_fingerprint in cars:
+ #   for (addr, ecu, cars, bus, fr_step, vl) in STATIC_MSGS:
+ #     if frame % fr_step == 0 and ecu in self.fake_ecus and self.car_fingerprint in cars:
         # special cases
-        if fr_step == 5 and ecu == ECU.CAM and bus == 1:
-          cnt = (((frame / 5) % 7) + 1) << 5
-          vl = chr(cnt) + vl
-        elif addr in (0x489, 0x48a) and bus == 0:
+#        if fr_step == 5 and ecu == ECU.CAM and bus == 1:
+#          cnt = (((frame / 5) % 7) + 1) << 5
+#          vl = chr(cnt) + vl
+#        elif addr in (0x489, 0x48a) and bus == 0:
           # add counter for those 2 messages (last 4 bits)
-          cnt = ((frame/100)%0xf) + 1
-          if addr == 0x48a:
-            # 0x48a has a 8 preceding the counter
-            cnt += 1 << 7
-          vl += chr(cnt)
-
-        can_sends.append(make_can_msg(addr, vl, bus, False))
+#          cnt = ((frame/100)%0xf) + 1
+#          if addr == 0x48a:
+#            # 0x48a has a 8 preceding the counter
+#            cnt += 1 << 7
+#          vl += chr(cnt)
+#
+#        can_sends.append(make_can_msg(addr, vl, bus, False)) 
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())

@@ -19,8 +19,7 @@ def get_can_parser(CP):
   signals = [
     # sig_name, sig_address, default
     ("GEAR", "GEAR_PACKET", 32),
-    ("BRAKE_PRESSED", "BRAKE_MODULE_2", 0),
-    #("GAS_PEDAL", "GAS_PEDAL", 0), on msbus
+    ("BRAKE_PRESSED", "BRAKE_MODULE", 0),
     ("FR", "WHEEL_SPEED_1", 0),
     ("FL", "WHEEL_SPEED_1", 0),
     ("RL", "WHEEL_SPEED_2", 0),
@@ -30,36 +29,24 @@ def get_can_parser(CP):
     ("DOOR_OPEN_RL", "SEATS_DOORS", 1),
     ("DOOR_OPEN_RR", "SEATS_DOORS", 1),
     ("SEATBELT_DRIVER_UNLATCHED", "SEATS_DOORS", 1),
-    #("TC_DISABLED", "ESP_CONTROL", 1),
     ("STEER_ANGLE", "STEER_ANGLE_SENSOR", 0),
-    #("STEER_FRACTION", "STEER_ANGLE_SENSOR", 0),
     ("STEER_RATE", "STEER_SENSOR2", 0),
-    #("GAS_RELEASED", "PCM_CRUISE", 0),
-    #("ACC_ENGAGED", "PCM_CRUISE", 0), on msbus
-    #("MAIN_ON", "PCM_CRUISE", 0),
-    #("SET_SPEED", "PCM_CRUISE", 0),
-    #("LOW_SPEED_LOCKOUT", "PCM_CRUISE_2", 0),
     ("STEER_TORQUE_DRIVER", "STEER_TORQUE_SENSOR", 0),
     ("STEER_TORQUE_EPS", "STEER_TORQUE_SENSOR", 0),
     ("TURN_SIGNALS", "STEERING_LEVERS", 0),   # 0 is no blinkers
-    #("LKA_STATE", "EPS_STATUS", 0),
-    #("IPAS_STATE", "EPS_STATUS", 1),
-    #("BRAKE_LIGHTS_ACC", "ESP_CONTROL", 0),
-    #("AUTO_HIGH_BEAM", "LIGHT_STALK", 0),
+    ("LKA_STATE", "EPS_STATUS", 0),
+    ("IPAS_STATE", "EPS_STATUS", 1),
   ]
 
   checks = [
   #address, frequency
-    #("BRAKE_MODULE", 20),
-    #("GAS_PEDAL", 33),
+    ("BRAKE_MODULE", 20),
     ("WHEEL_SPEED_1", 80),
     ("WHEEL_SPEED_2", 80),
     ("STEER_ANGLE_SENSOR", 80),
     ("STEER_SENSOR2", 80),
-    #("PCM_CRUISE", 33),
-    #("PCM_CRUISE_2", 33),
     ("STEER_TORQUE_SENSOR", 50),
-    #("EPS_STATUS", 25),
+    ("EPS_STATUS", 25),
   ]
 
   if CP.carFingerprint == CAR.PRIUS:
@@ -78,11 +65,14 @@ def get_can_parser_msbus(CP):
   ("MAIN_ON", "PCM_CRUISE", 0),
   ("SET_SPEED", "PCM_CRUISE", 0),
   ("ACC_ENGAGED", "PCM_CRUISE", 0),
+  ("BRAKE_LIGHTS_ACC", "ESP_CONTROL", 0),
+  ("TC_DIABLED", "ESP_CONTROL", 1),
   ]
 
   checks = [
   ("GAS_PEDAL", 33),
   ("PCM_CRUISE", 33),
+  ("ESP_CONTROL", 33),
   ]
   
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
@@ -121,13 +111,13 @@ class CarState(object):
                                     cp.vl["SEATS_DOORS"]['DOOR_OPEN_RL'], cp.vl["SEATS_DOORS"]['DOOR_OPEN_RR']])
     self.seatbelt = not cp.vl["SEATS_DOORS"]['SEATBELT_DRIVER_UNLATCHED']
 
-    self.brake_pressed = 0. #cp.vl["BRAKE_MODULE"]['BRAKE_PRESSED']
+    self.brake_pressed = cp.vl["BRAKE_MODULE"]['BRAKE_PRESSED']
     if self.CP.enableGasInterceptor:
       self.pedal_gas = cp.vl["GAS_SENSOR"]['INTERCEPTOR_GAS']
     else:
       self.pedal_gas = cp_msbus.vl["GAS_PEDAL"]['GAS_PEDAL']
     self.car_gas = self.pedal_gas
-    self.esp_disabled = 0 #cp.vl["ESP_CONTROL"]['TC_DISABLED']
+    self.esp_disabled = cp_msbus.vl["ESP_CONTROL"]['TC_DIABLED']
 
     # calc best v_ego estimate, by averaging two opposite corners
     self.v_wheel_fl = cp.vl["WHEEL_SPEED_1"]['FL'] * CV.KPH_TO_MS
@@ -155,9 +145,9 @@ class CarState(object):
     self.right_blinker_on = cp.vl["STEERING_LEVERS"]['TURN_SIGNALS'] == 2
 
     # 2 is standby, 10 is active. TODO: check that everything else is really a faulty state
-    self.steer_state = 0. #cp.vl["EPS_STATUS"]['LKA_STATE']
-    self.steer_error = 0. #cp.vl["EPS_STATUS"]['LKA_STATE'] not in [1, 5]
-    self.ipas_active = 0. #cp.vl['EPS_STATUS']['IPAS_STATE'] == 3
+    self.steer_state = cp.vl["EPS_STATUS"]['LKA_STATE']
+    self.steer_error = 0.  #cp.vl["EPS_STATUS"]['LKA_STATE'] not in [1, 5]
+    self.ipas_active = cp.vl['EPS_STATUS']['IPAS_STATE'] == 3
     self.brake_error = 0.
     self.steer_torque_driver = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_DRIVER']
     self.steer_torque_motor = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_EPS']
@@ -169,7 +159,7 @@ class CarState(object):
     self.pcm_acc_status = cp_msbus.vl["PCM_CRUISE"]['ACC_ENGAGED']
     self.gas_pressed = cp_msbus.vl["GAS_PEDAL"]['GAS_PEDAL']
     self.low_speed_lockout = 0. #cp.vl["PCM_CRUISE_2"]['LOW_SPEED_LOCKOUT'] == 2
-    self.brake_lights = False #bool(cp.vl["ESP_CONTROL"]['BRAKE_LIGHTS_ACC'] or self.brake_pressed)
+    self.brake_lights = bool(cp_msbus.vl["ESP_CONTROL"]['BRAKE_LIGHTS_ACC'] or self.brake_pressed)
     if self.CP.carFingerprint == CAR.PRIUS:
       self.generic_toggle = cp.vl["AUTOPARK_STATUS"]['STATE'] != 0
     else:
