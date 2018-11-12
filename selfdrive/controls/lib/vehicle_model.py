@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
-from numpy.linalg import solve
+from numpy.linalg import inv
 
 # dynamic bycicle model from "The Science of Vehicle Dynamics (2014), M. Guiggiani"##
 # Xdot = A*X + B*U
@@ -33,7 +33,7 @@ def kin_ss_sol(sa, u, VM):
 def dyn_ss_sol(sa, u, VM):
   # Dynamic solution, useful when speed > 0
   A, B = create_dyn_state_matrices(u, VM)
-  return - solve(A, B) * sa
+  return - np.matmul(inv(A), B) * sa
 
 
 def calc_slip_factor(VM):
@@ -61,6 +61,19 @@ class VehicleModel(object):
     self.sR = CP.steerRatio
     self.chi = CP.steerRatioRear
 
+  def update_rt_params(self, CP):
+    # Update parameters used in real-time tuning if called from real-time tuning logic in controlsd
+    # TODO:  Determine if really necessary
+    #self.m = CP.mass
+    #self.j = CP.rotationalInertia
+    #self.l = CP.wheelbase
+    #self.aF = CP.centerToFront
+    #self.aR = CP.wheelbase - CP.centerToFront
+    self.cF = CP.tireStiffnessFront
+    self.cR = CP.tireStiffnessRear
+    self.sR = CP.steerRatio
+    #self.chi = CP.steerRatioRear
+
   def update_state(self, state):
     self.state = state
 
@@ -87,7 +100,7 @@ class VehicleModel(object):
     # U is the matrix of the controls
     # u is the long speed
     A, B = create_dyn_state_matrices(u, self)
-    return np.matmul((A * self.dt + np.eye(2)), self.state) + B * sa * self.dt
+    return np.matmul((A * self.dt + np.identity(2)), self.state) + B * sa * self.dt
 
   def yaw_rate(self, sa, u):
     return self.calc_curvature(sa, u) * u

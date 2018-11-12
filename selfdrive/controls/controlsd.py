@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import imp
+import os
 import gc
 import json
 import zmq
@@ -281,7 +283,7 @@ def state_control(plan, CS, CP, state, events, v_cruise_kph, v_cruise_kph_last, 
                                       PL.PP.c_poly, PL.PP.c_prob, CS.steeringAngle,
                                       CS.steeringPressed)
 
-  # *** gas/brake PID loop ***
+  # *** gas/brake PID loop ***a
   actuators.gas, actuators.brake = LoC.update(active, CS.vEgo, CS.brakePressed, CS.standstill, CS.cruiseState.standstill,
                                               v_cruise_kph, plan.vTarget, plan.vTargetFuture, plan.aTarget,
                                               CP, PL.lead_1)
@@ -505,6 +507,12 @@ def controlsd_thread(gctx=None, rate=100, default_bias=0.):
 
   prof = Profiler(False)  # off by default
 
+  ########## BEGIN Tuning Mod #############
+  tune_file = "/sdcard/tuning/tune.txt"
+  last_mod_time = 0
+  mod_time = 0
+  ########## END Tuning Mod #############
+
   while 1:
 
     prof.checkpoint("Ratekeeper", ignore=True)
@@ -533,6 +541,47 @@ def controlsd_thread(gctx=None, rate=100, default_bias=0.):
     CC = data_send(PL.perception_state, plan, plan_ts, CS, CI, CP, VM, state, events, actuators, v_cruise_kph, rk, carstate, carcontrol,
       live100, livempc, AM, driver_status, LaC, LoC, angle_offset, passive)
     prof.checkpoint("Sent")
+
+    ########## BEGIN Tuning Mod #############
+    if rk.frame % 100 == 29:
+      try:
+        mod_time = os.path.getmtime(tune_file)
+      except OSError:
+        # File doesn't exist so just use the values from interface.py
+        mod_time = None
+        print "ERROR: Tuning Mod file %s does not exist!" % tune_file
+
+      if last_mod_time != mod_time:
+        if mod_time is not None:
+          # Read from the file and assign the values to CP
+          f = open(tune_file)
+          tuning = imp.load_source('tuning', '', f)
+          f.close()
+
+          # Update CP values from tuning mod
+          CP.steerKpV = tuning.steerKpV
+          CP.steerKiV = tuning.steerKiV
+          CP.steerKf = tuning.steerKf[0]
+          #CP.steerKiBP = tuning.steerKiBP
+          #CP.steerKpBP = tuning.steerKpBP
+          CP.steerRatio = tuning.steerRatio[0]
+          CP.steerActuatorDelay = tuning.steerActuatorDelay[0]
+
+          last_mod_time = os.path.getmtime(tune_file)
+        else:
+          last_mod_time = mod_time 
+
+        print "CP.steerKpV: %s" % CP.steerKpV
+        print "CP.steerKiV: %s" % CP.steerKiV
+        print "CP.steerKf: %s" % CP.steerKf
+        print "CP.steerKiBP: %s" % CP.steerKiBP
+        print "CP.steerKpBP: %s" % CP.steerKpBP
+        print "CP.steerRatio: %s" % CP.steerRatio
+        print "CP.steerActuatorDelay: %s" % CP.steerActuatorDelay
+
+        VM.update_rt_params(CP)
+        LaC.update_rt_params(VM)
+    ########## END Tuning Mod #############
 
     # *** run loop at fixed rate ***
     rk.keep_time()
