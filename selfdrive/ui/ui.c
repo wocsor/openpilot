@@ -225,8 +225,6 @@ typedef struct UIState {
   float light_sensor;
 } UIState;
 
-#include "tuning.h"
-
 static int last_brightness = -1;
 static void set_brightness(UIState *s, int brightness) {
   if (last_brightness != brightness && (s->awake || brightness == 0)) {
@@ -890,8 +888,6 @@ static void ui_draw_vision_maxspeed(UIState *s) {
     nvgFontSize(s->vg, 42*2.5);
     nvgText(s->vg, viz_maxspeed_x+viz_maxspeed_w/2, 242, "N/A", NULL);
   }
-
-  screen_draw_tuning(s);
 }
 
 static void ui_draw_vision_speed(UIState *s) {
@@ -1772,8 +1768,7 @@ int main() {
 
     // awake on any touch
     int touch_x = -1, touch_y = -1;
-    int key_up = 0;
-    int touched = custom_touch_poll(&touch, &touch_x, &touch_y, s->awake ? 0 : 100, &key_up);
+    int touched = touch_poll(&touch, &touch_x, &touch_y, s->awake ? 0 : 100);
     if (touched == 1) {
       // touch event will still happen :(
       set_awake(s, true);
@@ -1790,7 +1785,6 @@ int main() {
       ui_draw(s);
       glFinish();
       should_swap = true;
-      tuning(s, touch_x, touch_y, key_up);
     }
 
     pthread_mutex_unlock(&s->lock);
