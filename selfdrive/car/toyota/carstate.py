@@ -31,8 +31,6 @@ def get_can_parser(CP):
     ("SEATBELT_DRIVER_UNLATCHED", "SEATS_DOORS", 1),
     ("STEER_ANGLE", "STEER_ANGLE_SENSOR", 0),
     ("STEER_RATE", "STEER_SENSOR2", 0),
-    ("STEER_TORQUE_DRIVER", "STEER_TORQUE_SENSOR", 0),
-    ("STEER_TORQUE_EPS", "STEER_TORQUE_SENSOR", 0),
     ("TURN_SIGNALS", "STEERING_LEVERS", 0),   # 0 is no blinkers
     ("LKA_STATE", "EPS_STATUS", 0),
     ("IPAS_STATE", "EPS_STATUS", 1),
@@ -40,12 +38,11 @@ def get_can_parser(CP):
 
   checks = [
   #address, frequency
-    ("BRAKE_MODULE", 20),
+    ("BRAKE_MODULE", 42),
     ("WHEEL_SPEED_1", 80),
     ("WHEEL_SPEED_2", 80),
-    ("STEER_ANGLE_SENSOR", 80),
-    ("STEER_SENSOR2", 80),
-    ("STEER_TORQUE_SENSOR", 50),
+    ("STEER_ANGLE_SENSOR", 42),
+    ("STEER_SENSOR2", 42),
     ("EPS_STATUS", 25),
   ]
 
@@ -69,13 +66,21 @@ def get_can_parser_msbus(CP):
   ("TC_DIABLED", "ESP_CONTROL", 1),
   ]
 
-  checks = [
-  ("GAS_PEDAL", 33),
-  ("PCM_CRUISE", 33),
-  ("ESP_CONTROL", 33),
-  ]
-  
+  checks = []
+
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
+
+def get_can_parser_steering_bus(CP):
+  signals = [
+    ("STEER_TORQUE_DRIVER", "STEER_TORQUE_SENSOR", 0),
+    ("STEER_TORQUE_EPS", "STEER_TORQUE_SENSOR", 0),
+  ]
+
+  checks = [
+  ("STEER_TORQUE_SENSOR", 50),
+  ]
+
+  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
 
 class CarState(object):
   def __init__(self, CP):
@@ -99,7 +104,7 @@ class CarState(object):
                          K=np.matrix([[0.12287673], [0.29666309]]))
     self.v_ego = 0.0
 
-  def update(self, cp, cp_msbus):
+  def update(self, cp, cp_msbus, cp_steering):
     # copy can_valid
     self.can_valid = cp.can_valid
 
@@ -149,8 +154,8 @@ class CarState(object):
     self.steer_error = 0.  #cp.vl["EPS_STATUS"]['LKA_STATE'] not in [1, 5]
     self.ipas_active = cp.vl['EPS_STATUS']['IPAS_STATE'] == 3
     self.brake_error = 0.
-    self.steer_torque_driver = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_DRIVER']
-    self.steer_torque_motor = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_EPS']
+    self.steer_torque_driver = cp_steering.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_DRIVER']
+    self.steer_torque_motor = cp_steering.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_EPS']
     # we could use the override bit from dbc, but it's triggered at too high torque values
     self.steer_override = abs(self.steer_torque_driver) > STEER_THRESHOLD
 
