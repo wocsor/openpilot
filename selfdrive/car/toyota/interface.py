@@ -4,7 +4,7 @@ from cereal import car, log
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import EventTypes as ET, create_event
 from selfdrive.controls.lib.vehicle_model import VehicleModel
-from selfdrive.car.toyota.carstate import CarState, get_can_parser, get_can_parser_msbus
+from selfdrive.car.toyota.carstate import CarState, get_can_parser, get_can_parser_msbus, get_can_parser_steering_bus
 from selfdrive.car.toyota.values import ECU, check_ecu_msgs, CAR
 from selfdrive.swaglog import cloudlog
 
