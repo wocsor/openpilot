@@ -151,17 +151,18 @@ class CarInterface(object):
       ret.mass = 4607 * CV.LB_TO_KG + std_cargo #mean between normal and hybrid limited
       ret.steerKpV, ret.steerKiV = [[0.6], [0.05]]
       ret.steerKf = 0.00006
-      ret.steerActuatorDelay = 0.25
-
+      
     elif candidate == CAR.LEXUS_LS:
       stop_and_go = True
       ret.safetyParam = 100 # see conversion factor for STEER_TORQUE_EPS in dbc file
       ret.wheelbase = 3.09
-      ret.steerRatio = 13.7  # 14.8 is spec end-to-end
-      tire_stiffness_factor = 0.444  # not optimized yet
+      ret.steerRatio = 15  # 14.8 is spec end-to-end
+      tire_stiffness_factor = 0.8  # not optimized yet
       ret.mass = 4707 * CV.LB_TO_KG + std_cargo  # mean between min and max
-      ret.steerKpV, ret.steerKiV = [[0.4], [0.01]]
+      ret.steerKpV, ret.steerKiV = [[0.6], [0.05]]
       ret.steerKf = 0.00006   # full torque for 10 deg at 80mph means 0.00007818594
+      ret.steerActuatorDelay = 0.08
+
 
     ret.steerRateCost = 1.
     ret.centerToFront = ret.wheelbase * 0.44
