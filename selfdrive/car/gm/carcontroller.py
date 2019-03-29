@@ -173,10 +173,10 @@ class CarController(object):
       lka_active = CS.lkas_status == 1
       lka_critical = lka_active and abs(actuators.steer) > 0.9
       lka_icon_status = (lka_active, lka_critical)
-#      if frame % P.CAMERA_KEEPALIVE_STEP == 0 \
-#          or lka_icon_status != self.lka_icon_status_last:
-#        can_sends.append(gmcan.create_lka_icon_command(canbus.sw_gmlan, lka_active, lka_critical))
-#        self.lka_icon_status_last = lka_icon_status
+      if frame % P.CAMERA_KEEPALIVE_STEP == 0 \
+          or lka_icon_status != self.lka_icon_status_last:
+        can_sends.append(gmcan.create_lka_icon_command(canbus.sw_gmlan, lka_active, lka_critical))
+        self.lka_icon_status_last = lka_icon_status
 
     # Send chimes
     if self.chime != chime:
