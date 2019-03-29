@@ -115,38 +115,38 @@ class CarController(object):
 
     ### GAS/BRAKE ###
 
-    if self.car_fingerprint not in SUPERCRUISE_CARS:
-      # no output if not enabled, but keep sending keepalive messages
-      # treat pedals as one
-      final_pedal = actuators.gas - actuators.brake
-
-      # *** apply pedal hysteresis ***
-      final_brake, self.brake_steady = actuator_hystereses(
-        final_pedal, self.pedal_steady)
-
-      if not enabled:
-        # Stock ECU sends max regen when not enabled.
-        apply_gas = P.MAX_ACC_REGEN
-        apply_brake = 0
-      else:
-        apply_gas = int(round(interp(final_pedal, P.GAS_LOOKUP_BP, P.GAS_LOOKUP_V)))
-        apply_brake = int(round(interp(final_pedal, P.BRAKE_LOOKUP_BP, P.BRAKE_LOOKUP_V)))
-
-      # Gas/regen and brakes - all at 25Hz
-      if (frame % 4) == 0:
-        idx = (frame / 4) % 4
-
-        at_full_stop = enabled and CS.standstill
-        near_stop = enabled and (CS.v_ego < P.NEAR_STOP_BRAKE_PHASE)
-        can_sends.append(gmcan.create_friction_brake_command(self.packer_ch, canbus.chassis, apply_brake, idx, near_stop, at_full_stop))
-
-        at_full_stop = enabled and CS.standstill
-        can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, canbus.powertrain, apply_gas, idx, enabled, at_full_stop))
-
-      # Send dashboard UI commands (ACC status), 25hz
-      if (frame % 4) == 0:
-        can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, canbus.powertrain, enabled, hud_v_cruise * CV.MS_TO_KPH, hud_show_car))
-
+#    if self.car_fingerprint not in SUPERCRUISE_CARS:
+#      # no output if not enabled, but keep sending keepalive messages
+#      # treat pedals as one
+#      final_pedal = actuators.gas - actuators.brake
+#
+#      # *** apply pedal hysteresis ***
+#      final_brake, self.brake_steady = actuator_hystereses(
+#        final_pedal, self.pedal_steady)
+#
+#      if not enabled:
+#        # Stock ECU sends max regen when not enabled.
+#        apply_gas = P.MAX_ACC_REGEN
+#        apply_brake = 0
+#      else:
+#        apply_gas = int(round(interp(final_pedal, P.GAS_LOOKUP_BP, P.GAS_LOOKUP_V)))
+#        apply_brake = int(round(interp(final_pedal, P.BRAKE_LOOKUP_BP, P.BRAKE_LOOKUP_V)))
+#
+#      # Gas/regen and brakes - all at 25Hz
+#      if (frame % 4) == 0:
+#        idx = (frame / 4) % 4
+#
+#        at_full_stop = enabled and CS.standstill
+#        near_stop = enabled and (CS.v_ego < P.NEAR_STOP_BRAKE_PHASE)
+#        can_sends.append(gmcan.create_friction_brake_command(self.packer_ch, canbus.chassis, apply_brake, idx, near_stop, at_full_stop))
+#
+#        at_full_stop = enabled and CS.standstill
+#        can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, canbus.powertrain, apply_gas, idx, enabled, at_full_stop))
+#
+#      # Send dashboard UI commands (ACC status), 25hz
+#      if (frame % 4) == 0:
+#        can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, canbus.powertrain, enabled, hud_v_cruise * CV.MS_TO_KPH, hud_show_car))
+#
       # Radar needs to know current speed and yaw rate (50hz),
       # and that ADAS is alive (10hz)
       time_and_headlights_step = 10
@@ -173,10 +173,10 @@ class CarController(object):
       lka_active = CS.lkas_status == 1
       lka_critical = lka_active and abs(actuators.steer) > 0.9
       lka_icon_status = (lka_active, lka_critical)
-      if frame % P.CAMERA_KEEPALIVE_STEP == 0 \
-          or lka_icon_status != self.lka_icon_status_last:
-        can_sends.append(gmcan.create_lka_icon_command(canbus.sw_gmlan, lka_active, lka_critical))
-        self.lka_icon_status_last = lka_icon_status
+#      if frame % P.CAMERA_KEEPALIVE_STEP == 0 \
+#          or lka_icon_status != self.lka_icon_status_last:
+#        can_sends.append(gmcan.create_lka_icon_command(canbus.sw_gmlan, lka_active, lka_critical))
+#        self.lka_icon_status_last = lka_icon_status
 
     # Send chimes
     if self.chime != chime:
