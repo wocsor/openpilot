@@ -67,7 +67,8 @@ static void gm_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   // on powertrain bus.
   // 384 = ASCMLKASteeringCmd
   // 715 = ASCMGasRegenCmd
-  if (bus_number == 0 && (addr == 384 || addr == 715)) {
+  // DON'T CHECK for ASCM because that's dumbbbbbb
+  if (bus_number == 0 && (addr == 384)) {
     gm_ascm_detected = 1;
     controls_allowed = 0;
   }
