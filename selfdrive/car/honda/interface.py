@@ -314,6 +314,19 @@ class CarInterface(object):
       ret.longitudinalTuning.kiBP = [0., 35.]
       ret.longitudinalTuning.kiV = [0.18, 0.12]
 
+    elif candidate == CAR.ACURA_RDX_BOSCH:
+      stop_and_go = True
+      ret.mass = 3935. * CV.LB_TO_KG + STD_CARGO_KG
+      ret.wheelbase = 2.68
+      ret.centerToFront = ret.wheelbase * 0.38
+      ret.steerRatio = 15.0         # as spec
+      tire_stiffness_factor = 0.444 # not optimized yet
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.8], [0.24]]
+      ret.longitudinalTuning.kpBP = [0., 5., 35.]
+      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
+      ret.longitudinalTuning.kiBP = [0., 35.]
+      ret.longitudinalTuning.kiV = [0.18, 0.12]
+
     else:
       raise ValueError("unsupported car %s" % candidate)
 
