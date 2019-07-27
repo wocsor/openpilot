@@ -259,17 +259,15 @@ BO_ 891 STALK_STATUS_2: 8 XXX
 
 VAL_ 399 STEER_STATUS 6 "tmp_fault" 5 "fault_1" 4 "no_torque_alert_2" 3 "low_speed_lockout" 2 "no_torque_alert_1" 0 "normal" ;
 
-CM_ "honda_crv_hybrid_2019_can.dbc starts here"
+CM_ "acura_rdx_2019_can.dbc starts here"
 
 
-BO_ 330 STEERING_SENSORS: 8 EPS
+BO_ 342 STEERING_SENSORS: 6 EPS
  SG_ STEER_ANGLE : 7|16@0- (-0.1,0) [-500|500] "deg" EON
- SG_ STEER_ANGLE_RATE : 23|16@0- (-1,0) [-3000|3000] "deg/s" EON
- SG_ STEER_ANGLE_OFFSET : 39|8@0- (-0.1,0) [-128|127] "deg" EON
- SG_ STEER_WHEEL_ANGLE : 47|16@0- (-0.1,0) [-500|500] "deg" EON
- SG_ COUNTER : 61|2@0+ (1,0) [0|3] "" EON
- SG_ CHECKSUM : 59|4@0+ (1,0) [0|15] "" EON
- 
+ SG_ STEER_ANGLE_RATE : 23|16@0- (1,0) [-3000|3000] "deg/s" EON
+ SG_ COUNTER : 45|2@0+ (1,0) [0|3] "" EON
+ SG_ CHECKSUM : 43|4@0+ (1,0) [0|15] "" EON
+
 BO_ 419 GEARBOX: 8 PCM
  SG_ COUNTER : 61|2@0+ (1,0) [0|3] "" EON
  SG_ CHECKSUM : 59|4@0+ (1,0) [0|3] "" EON
@@ -277,42 +275,35 @@ BO_ 419 GEARBOX: 8 PCM
  SG_ GEAR : 7|8@0+ (1,0) [0|255] "" EON
 
 BO_ 432 STANDSTILL: 7 VSA
+ SG_ CONTROLLED_STANDSTILL : 0|1@0+ (1,0) [0|1] "" EON
  SG_ WHEELS_MOVING : 12|1@0+ (1,0) [0|1] "" EON
  SG_ BRAKE_ERROR_1 : 11|1@0+ (1,0) [0|1] "" EON
  SG_ BRAKE_ERROR_2 : 9|1@0+ (1,0) [0|1] "" EON
  SG_ COUNTER : 53|2@0+ (1,0) [0|3] "" EON
- SG_ CHECKSUM : 51|4@0+ (1,0) [0|15] "" EON
+ SG_ CHECKSUM : 51|4@0+ (1,0) [0|3] "" EON
 
-BO_ 927 RADAR_HUD: 8 RADAR
- SG_ ZEROS_BOH : 7|10@0+ (1,0) [0|127] "" BDY
- SG_ CMBS_OFF : 12|1@0+ (1,0) [0|1] "" BDY
- SG_ ZEROS_BOH3 : 31|32@0+ (1,0) [0|4294967295] "" XXX
- SG_ RESUME_INSTRUCTION : 21|1@0+ (1,0) [0|1] "" XXX
- SG_ SET_TO_1 : 13|1@0+ (1,0) [0|1] "" BDY
- SG_ ZEROS_BOH2 : 11|4@0+ (1,0) [0|1] "" XXX
- SG_ APPLY_BRAKES_FOR_CANC : 23|1@0+ (1,0) [0|1] "" XXX
- SG_ ACC_ALERTS : 20|5@0+ (1,0) [0|1] "" BDY
- SG_ SET_TO_0 : 22|1@0+ (1,0) [0|1] "" XXX
- SG_ COUNTER : 61|2@0+ (1,0) [0|3] "" XXX
- SG_ CHECKSUM : 59|4@0+ (1,0) [0|15] "" XXX
+BO_ 446 BRAKE_MODULE: 3 VSA
+ SG_ BRAKE_PRESSED : 4|1@0+ (1,0) [0|1] "" XXX
+ SG_ COUNTER : 21|2@0+ (1,0) [0|3] "" XXX
+ SG_ CHECKSUM : 19|4@0+ (1,0) [0|15] "" XXX
 
-BO_ 1302 ODOMETER: 8 XXX
- SG_ ODOMETER : 7|24@0+ (1,0) [0|16777215] "km" EON
+BO_ 487 BRAKE_PRESSURE: 4 VSA
+ SG_ BRAKE_PRESSURE1 : 7|10@0+ (0.015625,-103) [0|1000] "" EON
+ SG_ BRAKE_PRESSURE2 : 9|10@0+ (0.015625,-103) [0|1000] "" EON
+ SG_ COUNTER : 29|2@0+ (1,0) [0|15] "" EON
+ SG_ CHECKSUM : 27|4@0+ (1,0) [0|3] "" EON
+
+BO_ 660 SCM_FEEDBACK: 8 SCM
+ SG_ RIGHT_BLINKER : 6|1@0+ (1,0) [0|1] "" EON
+ SG_ LEFT_BLINKER : 5|1@0+ (1,0) [0|1] "" EON
+ SG_ WIPERS_SPEED : 4|2@0+ (1,0) [0|3] "" EON
  SG_ COUNTER : 61|2@0+ (1,0) [0|3] "" EON
- SG_ CHECKSUM : 59|4@0+ (1,0) [0|3] "" EON
+ SG_ CHECKSUM : 59|4@0+ (1,0) [0|15] "" EON
 
-CM_ SG_ 344 DISTANCE_COUNTER "";
-CM_ SG_ 450 EPB_STATE "3: On, 2: Disengaging, 1: Engaging, 0: Off";
-CM_ SG_ 479 CONTROL_ON "Set to 5 when car is being controlled";
-CM_ SG_ 479 RELATED_TO_GAS "bits 7, 3, and 1 set to 1 when gas not applied";
-CM_ SG_ 479 GAS_BRAKE "Signed value, negative when braking and positive when applying gas";
+CM_ SG_ 422 PARKING_BRAKE_LIGHT "Believe this is just the dash light for the parking break";
+VAL_ 392 GEAR_SHIFTER 0 "S" 1 "P" 2 "R" 4 "N" 8 "D" ;
+VAL_ 392 GEAR 26 "S" 4 "D" 3 "N" 2 "R" 1 "P" ;
+VAL_ 399 STEER_STATUS 6 "tmp_fault" 5 "fault_1" 4 "no_torque_alert_2" 3 "low_speed_lockout" 2 "no_torque_alert_1" 0 "normal" ;
+VAL_ 422 CRUISE_BUTTONS 7 "tbd" 6 "tbd" 5 "tbd" 4 "accel_res" 3 "decel_set" 2 "cancel" 1 "main" 0 "none" ;
 
-VAL_ 419 GEAR_SHIFTER  32 "D" 8 "R" 4 "P" ;
-VAL_ 545 ECON_ON_2 0 "off" 3 "on" ;
-VAL_ 662 CRUISE_BUTTONS 7 "tbd" 6 "tbd" 5 "tbd" 4 "accel_res" 3 "decel_set" 2 "cancel" 1 "main" 0 "none" ;
-VAL_ 662 CRUISE_SETTING 3 "distance_adj" 2 "tbd" 1 "lkas_button" 0 "none" ;
-VAL_ 806 CMBS_BUTTON 3 "pressed" 0 "released" ;
-VAL_ 891 WIPERS 4 "High" 2 "Low" 0 "Off" ;
-VAL_ 829 BEEP 3 "single_beep" 2 "triple_beep" 1 "repeated_beep" 0 "no_beep" ;
-
-CM_ "CHFFR_METRIC 330 STEER_ANGLE STEER_ANGLE 0.36 180; CHFFR_METRIC 380 ENGINE_RPM ENGINE_RPM 1 0; CHFFR_METRIC 804 ENGINE_TEMPERATURE ENGINE_TEMPERATURE 1 0";
+CM_ "CHFFR_METRIC 342 STEER_ANGLE STEER_ANGLE 0.36 180; CHFFR_METRIC 380 ENGINE_RPM ENGINE_RPM 1 0; CHFFR_METRIC 804 ENGINE_TEMPERATURE ENGINE_TEMPERATURE 1 0";
