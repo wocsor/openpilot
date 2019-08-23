@@ -104,6 +104,24 @@ def create_fcw_command(packer, fcw):
   }
   return packer.make_can_msg("ACC_HUD", 0, values)
 
+def create_aeb_command(packer, fcw):
+  values = {
+    "COUNTER": 0x0,
+    "SET_ME_X00": 0x0,
+    "FORCE": 0x0000,
+    "SET_ME_X002": 0x0,
+    "STATE": 0x0,
+    "BRAKE_STATUS": 0x0,
+    "SET_ME_X003":0x0,
+    "PRECOLLISION_ACTIVE": fcw,
+  }
+  return packer.make_can_msg("PRE_COLLISION", 0, values)
+
+def create_aeb_command2(packer, fcw):
+  values = {
+    "PRECOLLISION_ACTIVE": fcw,
+  }
+  return packer.make_can_msg("PRE_COLLISION_2", 1, values)
 
 def create_ui_command(packer, steer, left_line, right_line, left_lane_depart, right_lane_depart):
   values = {

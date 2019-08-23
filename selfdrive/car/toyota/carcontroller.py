@@ -5,7 +5,7 @@ from selfdrive.car import create_gas_command
 from selfdrive.car.toyota.toyotacan import make_can_msg, create_video_target,\
                                            create_steer_command, create_ui_command, \
                                            create_ipas_steer_command, create_accel_command, \
-                                           create_fcw_command
+                                           create_fcw_command, create_aeb_command, create_aeb_command2
 from selfdrive.car.toyota.values import ECU, STATIC_MSGS, TSS2_CAR
 from selfdrive.can.packer import CANPacker
 
@@ -241,6 +241,12 @@ class CarController(object):
 
     if frame % 100 == 0 and ECU.DSU in self.fake_ecus and self.car_fingerprint not in TSS2_CAR:
       can_sends.append(create_fcw_command(self.packer, fcw))
+
+    if frame % 3 == 0 and ECU.DSU in self.fake_ecus and self.car_fingerprint not in TSS2_CAR:
+      can_sends.append(create_aeb_command(self.packer, fcw))   
+    
+    if frame % 5 == 0 and ECU.DSU in self.fake_ecus and self.car_fingerprint not in TSS2_CAR:
+      can_sends.append(create_aeb_command2(self.packer, fcw))   
 
     #*** static msgs ***
 
