@@ -163,6 +163,7 @@ car_started_processes = [
   'ubloxd',
   'gpsd',
   'deleter',
+  'mapd'
 ]
 
 def register_managed_process(name, desc, car_started=False):
