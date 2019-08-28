@@ -7,7 +7,6 @@ from common.numpy_fast import clip
 from selfdrive.car.toyota.carcontroller import SteerLimitParams
 from selfdrive.car import apply_toyota_steer_torque_limits
 from selfdrive.controls.lib.drive_helpers import get_steer_max
-from selfdrive.virtualZSS import virtualZSS_wrapper
 
 
 class LatControlINDI(object):
@@ -41,11 +40,6 @@ class LatControlINDI(object):
     self.inner_loop_gain = CP.lateralTuning.indi.innerLoopGain
     self.alpha = 1. - DT_CTRL / (self.RC + DT_CTRL)
 
-    #virtualZSS
-    self.model_wrapper = virtualZSS_wrapper.get_wrapper()
-    self.model_wrapper.init_model()
-    self.output_steer = 0
-
     self.reset()
 
   def reset(self):
@@ -53,10 +47,7 @@ class LatControlINDI(object):
     self.output_steer = 0.
     self.counter = 0
 
-  def update(self, active, v_ego, angle_steers, angle_steers_rate, eps_torque, steer_override, CP, VM, path_plan, driver_torque):
-
-    #virtualZSS
-    angle_steers = round(float(self.model_wrapper.run_model(self.output_steer, angle_steers, driver_torque)), 2)
+  def update(self, active, v_ego, angle_steers, angle_steers_rate, eps_torque, steer_override, CP, VM, path_plan):
 
     # Update Kalman filter
     y = np.matrix([[math.radians(angle_steers)], [math.radians(angle_steers_rate)]])

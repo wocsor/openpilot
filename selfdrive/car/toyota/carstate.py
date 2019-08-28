@@ -5,6 +5,9 @@ from selfdrive.can.parser import CANParser
 from selfdrive.config import Conversions as CV
 from selfdrive.car.toyota.values import CAR, DBC, STEER_THRESHOLD, TSS2_CAR, NO_DSU_CAR
 
+from selfdrive.virtualZSS import virtualZSS_wrapper
+
+
 def parse_gear_shifter(gear, vals):
 
   val_to_capnp = {'P': 'park', 'R': 'reverse', 'N': 'neutral',
@@ -109,6 +112,11 @@ class CarState(object):
                          K=[[0.12287673], [0.29666309]])
     self.v_ego = 0.0
 
+    #virtualZSS
+    self.model_wrapper = virtualZSS_wrapper.get_wrapper()
+    self.model_wrapper.init_model()
+    self.output_steer = 0
+
   def update(self, cp):
     # update prevs, update must run once per loop
     self.prev_left_blinker_on = self.left_blinker_on
@@ -154,7 +162,9 @@ class CarState(object):
         self.init_angle_offset = True
         self.angle_offset = self.angle_steers - angle_wheel
     else:
-      self.angle_steers = cp.vl["STEER_ANGLE_SENSOR"]['STEER_ANGLE'] + cp.vl["STEER_ANGLE_SENSOR"]['STEER_FRACTION']
+      self.bad_angle = cp.vl["STEER_ANGLE_SENSOR"]['STEER_ANGLE'] + cp.vl["STEER_ANGLE_SENSOR"]['STEER_FRACTION']
+      #virtualZSS
+      angle_steers = round(float(self.model_wrapper.run_model(self.output_steer, self.bad_angle, self.steer_torque_driver)), 2)
     self.angle_steers_rate = cp.vl["STEER_ANGLE_SENSOR"]['STEER_RATE']
     can_gear = int(cp.vl["GEAR_PACKET"]['GEAR'])
     self.gear_shifter = parse_gear_shifter(can_gear, self.shifter_values)

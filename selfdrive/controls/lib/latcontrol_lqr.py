@@ -28,7 +28,7 @@ class LatControlLQR(object):
     self.i_lqr = 0.0
     self.output_steer = 0.0
 
-  def update(self, active, v_ego, angle_steers, angle_steers_rate, eps_torque, steer_override, CP, VM, path_plan, driver_torque):
+  def update(self, active, v_ego, angle_steers, angle_steers_rate, eps_torque, steer_override, CP, VM, path_plan):
     lqr_log = log.ControlsState.LateralLQRState.new_message()
 
     torque_scale = (0.45 + v_ego / 60.0)**2  # Scale actuator model with speed
