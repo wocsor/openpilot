@@ -116,6 +116,8 @@ class CarState(object):
     self.model_wrapper = virtualZSS_wrapper.get_wrapper()
     self.model_wrapper.init_model()
     self.output_steer = 0
+    self.bad_angle = 0
+    self.steer_torque_driver = 0
 
   def update(self, cp):
     # update prevs, update must run once per loop
