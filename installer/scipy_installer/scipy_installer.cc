@@ -190,7 +190,7 @@ int run_command(char const *cmd, float denominator) {
 
   void run_stages() {
 
-    char const *command1 = "bash /data/openpilot/installer/scipy_installer/installerscript.sh";
+    char const *command1 = "Setting up apt";
     char const *command2 = "Installing scipy";
 
 
@@ -204,12 +204,12 @@ int run_command(char const *cmd, float denominator) {
       return;
     }
 
-    set_progress("Updating apt");
-    run_command(command1, 40);
+    set_progress(command1);
+    run_command("bash /data/openpilot/installer/scipy_installer/get_repo.sh", 40);
 
 
     set_progress(command2);
-    run_command("apt install -y scipy", 38);
+    run_command("bash /data/openpilot/installer/scipy_installer/install_dependencies.sh", 38);
 
     set_progress("Installation complete");
     shell_text = "";
