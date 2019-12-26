@@ -226,12 +226,12 @@ class CarInterface(CarInterfaceBase):
     
     elif candidate == CAR.LEXUS_GSH:
       stop_and_go = True
-      ret.safetyParam = 100 # see conversion factor for STEER_TORQUE_EPS in dbc file
+      ret.safetyParam = 100
       ret.wheelbase = 2.85
-      ret.steerRatio = 16.0  # 14.8 is spec end-to-end
-      tire_stiffness_factor = 0.444  # not optimized yet
-      ret.mass = 4034 * CV.LB_TO_KG + STD_CARGO_KG  # mean between min and max
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.1]]
+      ret.steerRatio = 13.3
+      tire_stiffness_factor = 0.444
+      ret.mass = 4034 * CV.LB_TO_KG + STD_CARGO_KG
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.6], [0.1]]
       ret.lateralTuning.pid.kf = 0.00007818594
 
     ret.steerRateCost = 1.
