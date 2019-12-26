@@ -224,7 +224,7 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.05]]
       ret.lateralTuning.pid.kf = 0.00007
     
-    elif candidate == CAR.LEXUS_GS300H:
+    elif candidate == CAR.LEXUS_GSH:
       stop_and_go = True
       ret.safetyParam = 100 # see conversion factor for STEER_TORQUE_EPS in dbc file
       ret.wheelbase = 2.85
