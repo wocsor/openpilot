@@ -4,7 +4,7 @@ from common.numpy_fast import interp
 from selfdrive.config import Conversions as CV
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.gm import gmcan
-from selfdrive.car.gm.values import DBC, SUPERCRUISE_CARS, CanBus
+from selfdrive.car.gm.values import DBC, SUPERCRUISE_CARS, NO_ASCM_CARS, CanBus
 from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -116,7 +116,7 @@ class CarController():
 
     ### GAS/BRAKE ###
 
-    if self.car_fingerprint not in SUPERCRUISE_CARS:
+    if self.car_fingerprint not in SUPERCRUISE_CARS or self.car_fingerprint not in NO_ASCM_CARS:
       # no output if not enabled, but keep sending keepalive messages
       # treat pedals as one
       final_pedal = actuators.gas - actuators.brake

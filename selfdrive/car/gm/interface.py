@@ -3,7 +3,7 @@ from cereal import car
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
 from selfdrive.car.gm.values import CAR, Ecu, ECU_FINGERPRINT, CruiseButtons, \
-                                    SUPERCRUISE_CARS, AccState, FINGERPRINTS
+                                    SUPERCRUISE_CARS, AccState, FINGERPRINTS, NO_ASCM_CARS
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
 from selfdrive.car.interfaces import CarInterfaceBase
 
@@ -29,9 +29,11 @@ class CarInterface(CarInterfaceBase):
     # Presence of a camera on the object bus is ok.
     # Have to go to read_only if ASCM is online (ACC-enabled cars),
     # or camera is on powertrain bus (LKA cars without ACC).
+    # TODO: ASCM/cam detection is a MESS. They need to be separated.
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or \
                        has_relay or \
-                       candidate == CAR.CADILLAC_CT6
+                       candidate == CAR.CADILLAC_CT6 or \
+                       candidate in NO_ASCM_CARS
     ret.openpilotLongitudinalControl = ret.enableCamera
     tire_stiffness_factor = 0.444  # not optimized yet
 
@@ -102,6 +104,14 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 14.6   # it's 16.3 without rear active steering
       ret.steerRatioRear = 0. # TODO: there is RAS on this car!
       ret.centerToFront = ret.wheelbase * 0.465
+
+    elif candidate == CAR.SUBURBAN:
+      ret.minEnableSpeed = -1. # engage speed is decided by pcm
+      ret.mass = 5808. * CV.LB_TO_KG + STD_CARGO_KG
+      ret.wheelbase = 3.30
+      ret.steerRatio = 17.3 
+      ret.steerRatioRear = 0.
+      ret.centerToFront = ret.wheelbase * 0.4
 
     # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase

@@ -66,85 +66,92 @@ def only_toyota_left(candidate_cars):
 
 # **** for use live only ****
 def fingerprint(logcan, sendcan, has_relay):
-  if has_relay:
-    # Vin query only reliably works thorugh OBDII
-    bus = 1
+  # if has_relay:
+  #   # Vin query only reliably works thorugh OBDII
+  #   bus = 1
 
-    cached_params = Params().get("CarParamsCache")
-    if cached_params is not None:
-      cached_params = car.CarParams.from_bytes(cached_params)
-      if cached_params.carName == "mock":
-        cached_params = None
+  #   cached_params = Params().get("CarParamsCache")
+  #   if cached_params is not None:
+  #     cached_params = car.CarParams.from_bytes(cached_params)
+  #     if cached_params.carName == "mock":
+  #       cached_params = None
 
-    if cached_params is not None and len(cached_params.carFw) > 0 and cached_params.carVin is not VIN_UNKNOWN:
-      cloudlog.warning("Using cached CarParams")
-      vin = cached_params.carVin
-      car_fw = list(cached_params.carFw)
-    else:
-      cloudlog.warning("Getting VIN & FW versions")
-      _, vin = get_vin(logcan, sendcan, bus)
-      car_fw = get_fw_versions(logcan, sendcan, bus)
+  #   if cached_params is not None and len(cached_params.carFw) > 0 and cached_params.carVin is not VIN_UNKNOWN:
+  #     cloudlog.warning("Using cached CarParams")
+  #     vin = cached_params.carVin
+  #     car_fw = list(cached_params.carFw)
+  #   else:
+  #     cloudlog.warning("Getting VIN & FW versions")
+  #     _, vin = get_vin(logcan, sendcan, bus)
+  #     car_fw = get_fw_versions(logcan, sendcan, bus)
 
-    fw_candidates = match_fw_to_car(car_fw)
-  else:
-    vin = VIN_UNKNOWN
-    fw_candidates, car_fw = set(), []
+  #   fw_candidates = match_fw_to_car(car_fw)
+  # else:
+  #   vin = VIN_UNKNOWN
+  #   fw_candidates, car_fw = set(), []
 
-  cloudlog.warning("VIN %s", vin)
-  Params().put("CarVin", vin)
+  # cloudlog.warning("VIN %s", vin)
+  # Params().put("CarVin", vin)
 
+  # finger = gen_empty_fingerprint()
+  # candidate_cars = {i: all_known_cars() for i in [0, 1]}  # attempt fingerprint on both bus 0 and 1
+  # frame = 0
+  # frame_fingerprint = 10  # 0.1s
+  # car_fingerprint = None
+  # done = False
+
+  # while not done:
+  #   a = messaging.get_one_can(logcan)
+
+  #   for can in a.can:
+  #     # need to independently try to fingerprint both bus 0 and 1 to work
+  #     # for the combo black_panda and honda_bosch. Ignore extended messages
+  #     # and VIN query response.
+  #     # Include bus 2 for toyotas to disambiguate cars using camera messages
+  #     # (ideally should be done for all cars but we can't for Honda Bosch)
+  #     if can.src in range(0, 4):
+  #       finger[can.src][can.address] = len(can.dat)
+  #     for b in candidate_cars:
+  #       if (can.src == b or (only_toyota_left(candidate_cars[b]) and can.src == 2)) and \
+  #          can.address < 0x800 and can.address not in [0x7df, 0x7e0, 0x7e8]:
+  #         candidate_cars[b] = eliminate_incompatible_cars(can, candidate_cars[b])
+
+  #   # if we only have one car choice and the time since we got our first
+  #   # message has elapsed, exit
+  #   for b in candidate_cars:
+  #     # Toyota needs higher time to fingerprint, since DSU does not broadcast immediately
+  #     if only_toyota_left(candidate_cars[b]):
+  #       frame_fingerprint = 100  # 1s
+  #     if len(candidate_cars[b]) == 1:
+  #       if frame > frame_fingerprint:
+  #         # fingerprint done
+  #         car_fingerprint = candidate_cars[b][0]
+
+  #   # bail if no cars left or we've been waiting for more than 2s
+  #   failed = all(len(cc) == 0 for cc in candidate_cars.values()) or frame > 200
+  #   succeeded = car_fingerprint is not None
+  #   done = failed or succeeded
+
+  #   frame += 1
+
+  # source = car.CarParams.FingerprintSource.can
+
+  # # If FW query returns exactly 1 candidate, use it
+  # if len(fw_candidates) == 1:
+  #   car_fingerprint = list(fw_candidates)[0]
+  #   source = car.CarParams.FingerprintSource.fw
+
+  # fixed_fingerprint = os.environ.get('FINGERPRINT', "")
+  # if len(fixed_fingerprint):
+  #   car_fingerprint = fixed_fingerprint
+  #   source = car.CarParams.FingerprintSource.fixed
+
+  # force the SUBURBAN
+  car_fingerprint = "CHEVROLET SUBURBAN 2019"
   finger = gen_empty_fingerprint()
-  candidate_cars = {i: all_known_cars() for i in [0, 1]}  # attempt fingerprint on both bus 0 and 1
-  frame = 0
-  frame_fingerprint = 10  # 0.1s
-  car_fingerprint = None
-  done = False
-
-  while not done:
-    a = messaging.get_one_can(logcan)
-
-    for can in a.can:
-      # need to independently try to fingerprint both bus 0 and 1 to work
-      # for the combo black_panda and honda_bosch. Ignore extended messages
-      # and VIN query response.
-      # Include bus 2 for toyotas to disambiguate cars using camera messages
-      # (ideally should be done for all cars but we can't for Honda Bosch)
-      if can.src in range(0, 4):
-        finger[can.src][can.address] = len(can.dat)
-      for b in candidate_cars:
-        if (can.src == b or (only_toyota_left(candidate_cars[b]) and can.src == 2)) and \
-           can.address < 0x800 and can.address not in [0x7df, 0x7e0, 0x7e8]:
-          candidate_cars[b] = eliminate_incompatible_cars(can, candidate_cars[b])
-
-    # if we only have one car choice and the time since we got our first
-    # message has elapsed, exit
-    for b in candidate_cars:
-      # Toyota needs higher time to fingerprint, since DSU does not broadcast immediately
-      if only_toyota_left(candidate_cars[b]):
-        frame_fingerprint = 100  # 1s
-      if len(candidate_cars[b]) == 1:
-        if frame > frame_fingerprint:
-          # fingerprint done
-          car_fingerprint = candidate_cars[b][0]
-
-    # bail if no cars left or we've been waiting for more than 2s
-    failed = all(len(cc) == 0 for cc in candidate_cars.values()) or frame > 200
-    succeeded = car_fingerprint is not None
-    done = failed or succeeded
-
-    frame += 1
-
-  source = car.CarParams.FingerprintSource.can
-
-  # If FW query returns exactly 1 candidate, use it
-  if len(fw_candidates) == 1:
-    car_fingerprint = list(fw_candidates)[0]
-    source = car.CarParams.FingerprintSource.fw
-
-  fixed_fingerprint = os.environ.get('FINGERPRINT', "")
-  if len(fixed_fingerprint):
-    car_fingerprint = fixed_fingerprint
-    source = car.CarParams.FingerprintSource.fixed
+  vin = VIN_UNKNOWN
+  car_fw = []
+  source = car.CarParams.FingerprintSource.fixed
 
   cloudlog.warning("fingerprinted %s", car_fingerprint)
   return car_fingerprint, finger, vin, car_fw, source
