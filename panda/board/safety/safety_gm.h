@@ -7,7 +7,7 @@
 //      accel rising edge
 //      brake rising edge
 //      brake > 0mph
-
+/*
 const int GM_MAX_STEER = 300;
 const int GM_MAX_RT_DELTA = 128;          // max delta torque allowed for real time checks
 const uint32_t GM_RT_INTERVAL = 250000;    // 250ms between real time checks
@@ -18,6 +18,7 @@ const int GM_DRIVER_TORQUE_FACTOR = 4;
 const int GM_MAX_GAS = 3072;
 const int GM_MAX_REGEN = 1404;
 const int GM_MAX_BRAKE = 350;
+*/
 const AddrBus GM_TX_MSGS[] = {{384, 0}, {1033, 0}, {1034, 0}, {715, 0}, {880, 0},  // pt bus
                               {161, 1}, {774, 1}, {776, 1}, {784, 1},   // obs bus
                               {789, 2},  // ch bus
@@ -32,18 +33,18 @@ AddrCheckStruct gm_rx_checks[] = {
   {.addr = {417}, .bus = 0, .expected_timestep = 100000U},
 };
 const int GM_RX_CHECK_LEN = sizeof(gm_rx_checks) / sizeof(gm_rx_checks[0]);
-
+/*
 bool gm_moving = false;
 int gm_rt_torque_last = 0;
 int gm_desired_torque_last = 0;
 uint32_t gm_ts_last = 0;
 struct sample_t gm_torque_driver;         // last few driver torques measured
-
+*/
 static int gm_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
   bool valid = addr_safety_check(to_push, gm_rx_checks, GM_RX_CHECK_LEN,
                                  NULL, NULL, NULL);
-
+/*
   if (valid && (GET_BUS(to_push) == 0)) {
     int addr = GET_ADDR(to_push);
 
@@ -113,6 +114,7 @@ static int gm_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     //   relay_malfunction = true;
     // }
   }
+  */
   return valid;
 }
 
@@ -125,6 +127,7 @@ static int gm_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 static int gm_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
   int tx = 1;
+  /*
   int addr = GET_ADDR(to_send);
   int bus = GET_BUS(to_send);
 
@@ -218,7 +221,7 @@ static int gm_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
       tx = 0;
     }
   }
-
+*/
   // 1 allows the message through
   return tx;
 }
