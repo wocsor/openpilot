@@ -169,15 +169,15 @@ class CarController():
 
         # special cases
         if fr_step == 5 and ecu == Ecu.fwdCamera and bus == 1:
-          cnt = (((frame / 5) % 7) + 1) << 5
-          vl = chr(cnt) + vl
+          cnt = int(((frame / 5) % 7) + 1) << 5
+          vl = bytes([cnt]) + vl
         elif addr in (0x489, 0x48a) and bus == 0:
           # add counter for those 2 messages (last 4 bits)
-          cnt = ((frame/100)%0xf) + 1
+          cnt = int((frame/100)%0xf) + 1
           if addr == 0x48a:
             # 0x48a has a 8 preceding the counter
             cnt += 1 << 7
-          vl += chr(cnt)
+          vl += bytes([cnt])
 
         can_sends.append(make_can_msg(addr, vl, bus))
 
