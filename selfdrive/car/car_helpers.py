@@ -151,6 +151,8 @@ def fingerprint(logcan, sendcan, has_relay):
     car_fingerprint = fixed_fingerprint
     source = car.CarParams.FingerprintSource.fixed
 
+  car_fingerprint = "TOYOTA CELICA 2003"
+
   cloudlog.warning("fingerprinted %s", car_fingerprint)
   return car_fingerprint, finger, vin, car_fw, source
 
