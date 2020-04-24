@@ -99,12 +99,11 @@ static int toyota_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     toyota_cruise_engaged_last = cruise_engaged;
   }
   // exit controls on rising edge of gas press
-  if (addr == 401) {
-    int gas = GET_BYTE(to_push, 0) << 8 | GET_BYTE(to_push, 1) << 0;
-    if ((gas > 100) && (toyota_gas_prev > 100) && !gas_interceptor_detected && long_controls_allowed) {
+  if (addr == 0x401) {
+    int gas = (GET_BYTE(to_push, 0) << 8) | (GET_BYTE(to_push, 1) << 0);
+    if ((gas > 100) && !gas_interceptor_detected) {
       controls_allowed = 0;
     }
-    toyota_gas_prev = gas;
   }
 
     // enter controls on rising edge of ACC, exit controls on ACC off
