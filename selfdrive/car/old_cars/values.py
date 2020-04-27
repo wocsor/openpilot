@@ -45,7 +45,7 @@ STATIC_MSGS = [
   (0x3bb, Ecu.dsu, (CAR.CELICA), 0, 100, b'\x00\x00\x26\x00'),
   (0x3f9, Ecu.dsu, (CAR.CELICA), 0, 20, b'\x76\x18\x26\x01\x00\x00\x00\xb9'),
   (0x3bc, Ecu.dsu, (CAR.CELICA), 0, 100, b'\x00\x00\x00\x00\x00\x80\x00\x00'),
-  (0x24, Ecu.dsu, (CAR.CELICA), 0, 1, b'\x02\x00\x01\xfd\x42\x03\x80\xf1'),
+  #(0x24, Ecu.dsu, (CAR.CELICA), 0, 1, b'\x02\x00\x01\xfd\x42\x03\x80\xf1'),
   (0x3b1, Ecu.dsu, (CAR.CELICA), 0, 100, b'\x00\x00\x00\x01\x00\x08\x00\x00'),
   (0x4ac, Ecu.dsu, (CAR.CELICA), 0, 50, b'\x28\x00\x60\x01\x0a\x00\xa3\xa0'),
 
