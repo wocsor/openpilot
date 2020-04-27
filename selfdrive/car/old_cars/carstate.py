@@ -57,7 +57,7 @@ class CarState(CarStateBase):
 
     ret.steeringRate = cp.vl["STEER_ANGLE_SENSOR"]['STEER_RATE']
     can_gear = 0
-    ret.gearShifter = 0
+    ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
     ret.leftBlinker = False
     ret.rightBlinker = False
 
@@ -67,7 +67,7 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     # cruise magic
     ret.cruiseState.available = cp.vl["PCM_CRUISE"]['MAIN_ON'] != 0
-    ret.cruiseState.enabled = bool(cp.vl["PCM_CRUISE"]['ENGAGED'])
+    ret.cruiseState.enabled = cp.vl["PCM_CRUISE"]['ENGAGED'] != 0 
     if ret.cruiseState.enabled:
       self.buttonStates["accelCruise"] = bool(cp.vl["PCM_CRUISE"]['RES_ACC'])
       self.buttonStates["decelCruise"] = bool(cp.vl["PCM_CRUISE"]['SET_COAST'])

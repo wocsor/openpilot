@@ -401,7 +401,7 @@ void can_health(PubSocket *publisher) {
       libusb_control_transfer(dev_handle, 0xc0, 0xe6, (uint16_t)(cereal::HealthData::UsbPowerMode::CLIENT), 0, NULL, 0, TIMEOUT);
       pthread_mutex_unlock(&usb_lock);
       printf("POWER DOWN DEVICE\n");
-      system("service call power 17 i32 0 i32 1");
+      //system("service call power 17 i32 0 i32 1");
     }
     if (disable_power_down) free(disable_power_down);
   }

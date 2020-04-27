@@ -2,12 +2,15 @@
 from cereal import car
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import EventTypes as ET, create_event
-from selfdrive.car.old_cars.values import CAR
+from selfdrive.car.old_cars.values import CAR, BUTTON_STATES
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint
 from selfdrive.swaglog import cloudlog
 from selfdrive.car.interfaces import CarInterfaceBase
 
 class CarInterface(CarInterfaceBase):
+  def __init__(self, CP, CarController, CarState):
+    super().__init__(CP, CarController, CarState)
+    self.buttonStatesPrev = BUTTON_STATES.copy()
 
   @staticmethod
   def compute_gb(accel, speed):
@@ -19,13 +22,14 @@ class CarInterface(CarInterfaceBase):
 
     ret.carName = "old_cars"
     # TODO: old_cars_safety
-    ret.safetyModel = car.CarParams.SafetyModel.toyota
+    ret.safetyModel = car.CarParams.SafetyModel.allOutput
 
     ret.steerActuatorDelay = 0.12  # Default delay, Prius has larger delay
     ret.steerLimitTimer = 0.4
 
     ret.lateralTuning.init('pid')
     ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
+    ret.enableCruise = False  # stock cruise control is kept off
 
     if candidate == CAR.CELICA:
       stop_and_go = False
@@ -92,10 +96,17 @@ class CarInterface(CarInterfaceBase):
 
     ret = self.CS.update(self.cp, None)
 
-    ret.canValid = self.cp.can_valid #and self.cp_cam.can_valid
+    ret.canValid = True #self.cp.can_valid and self.cp_cam.can_valid
     ret.yawRate = self.VM.yaw_rate(ret.steeringAngle * CV.DEG_TO_RAD, ret.vEgo)
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
-    ret.buttonEvents = []
+    buttonEvents = []
+
+    for button in self.CS.buttonStates:
+      if self.CS.buttonStates[button] != self.buttonStatesPrev[button]:
+        be = car.CarState.ButtonEvent.new_message()
+        be.type = button
+        be.pressed = self.CS.buttonStates[button]
+        buttonEvents.append(be)
 
     # events
     events = self.create_common_events(ret)
@@ -109,8 +120,15 @@ class CarInterface(CarInterfaceBase):
         # while in standstill, send a user alert
         events.append(create_event('manualRestart', [ET.WARNING]))
 
-    ret.events = events
+    if ret.cruiseState.enabled and not self.cruise_enabled_prev:
+      events.append(create_event('pcmEnable', [ET.ENABLE]))
+    elif not ret.cruiseState.enabled:
+      events.append(create_event('pcmDisable', [ET.USER_DISABLE]))
 
+    ret.events = events
+    ret.buttonEvents = buttonEvents
+    self.buttonStatesPrev = self.buttonStatesPrev = self.CS.buttonStates.copy()
+    self.cruise_enabled_prev = ret.cruiseState.enabled
     self.CS.out = ret.as_reader()
     return self.CS.out
 

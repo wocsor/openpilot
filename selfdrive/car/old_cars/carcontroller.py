@@ -79,10 +79,9 @@ class CarController():
         # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
         # This prevents unexpected pedal range rescaling
         can_sends.append(create_actuator_command(self.packer, "GAS_ACTUATOR", apply_gas, frame//2))
-        # can_sends.append(create_actuator_command(self.packer, "BRAKE_ACTUATOR", apply_brake, frame//2))
-        if pcm_cancel_cmd:
-          can_sends.append(create_acc_cancel_command(self.packer, 255., frame//2))
-
+        can_sends.append(create_actuator_command(self.packer, "BRAKE_ACTUATOR", apply_brake, frame//2))
+       # if pcm_cancel_cmd:
+       #   can_sends.append(create_acc_cancel_command(self.packer, 1, frame//2))
 
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
@@ -98,6 +97,9 @@ class CarController():
     elif pcm_cancel_cmd:
       # forcing the pcm to disengage causes a bad fault sound so play a good sound instead
       send_ui = True
+
+    
+
 
     #*** static msgs ***
 
