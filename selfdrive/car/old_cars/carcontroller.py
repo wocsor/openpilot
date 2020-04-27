@@ -79,7 +79,6 @@ class CarController():
         # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
         # This prevents unexpected pedal range rescaling
         can_sends.append(create_actuator_command(self.packer, "GAS_ACTUATOR", apply_gas, frame//2))
-        # brake actuator disabled for now (it physically moves the brake pedal and sensor is not implemented yet)
         # can_sends.append(create_actuator_command(self.packer, "BRAKE_ACTUATOR", apply_brake, frame//2))
         if pcm_cancel_cmd:
           can_sends.append(create_acc_cancel_command(self.packer, 255., frame//2))

@@ -2,17 +2,12 @@
 from cereal import car
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import EventTypes as ET, create_event
-from selfdrive.car.old_cars.values import CAR, BUTTON_STATES
+from selfdrive.car.old_cars.values import CAR
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint
 from selfdrive.swaglog import cloudlog
 from selfdrive.car.interfaces import CarInterfaceBase
 
 class CarInterface(CarInterfaceBase):
-
-  def __init__(self, CP, CarController, CarState):
-    super().__init__(CP, CarController, CarState)
-
-    self.buttonStatesPrev = BUTTON_STATES.copy()
 
   @staticmethod
   def compute_gb(accel, speed):
@@ -91,9 +86,6 @@ class CarInterface(CarInterfaceBase):
 
   # returns a car.CarState
   def update(self, c, can_strings):
-
-    buttonEvents = []
-
     # ******************* do can recv *******************
     self.cp.update_strings(can_strings)
     #self.cp_cam.update_strings(can_strings)
@@ -104,14 +96,6 @@ class CarInterface(CarInterfaceBase):
     ret.yawRate = self.VM.yaw_rate(ret.steeringAngle * CV.DEG_TO_RAD, ret.vEgo)
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
     ret.buttonEvents = []
-
-    # cruise button states
-    for button in self.CS.buttonStates:
-      if self.CS.buttonStates[button] != self.buttonStatesPrev[button]:
-        be = car.CarState.ButtonEvent.new_message()
-        be.type = button
-        be.pressed = self.CS.buttonStates[button]
-        buttonEvents.append(be)
 
     # events
     events = self.create_common_events(ret)
@@ -126,11 +110,6 @@ class CarInterface(CarInterfaceBase):
         events.append(create_event('manualRestart', [ET.WARNING]))
 
     ret.events = events
-
-    self.gas_pressed_prev = ret.gasPressed
-    self.brake_pressed_prev = ret.brakePressed
-    self.cruise_enabled_prev = ret.cruiseState.enabled
-    self.buttonStatesPrev = self.CS.buttonStates.copy()
 
     self.CS.out = ret.as_reader()
     return self.CS.out
