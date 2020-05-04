@@ -115,5 +115,5 @@ DBC = {
   CAR.CELICA: dbc_dict('toyota_celica_2003_pt', 'toyota_adas'),
 }
 
-NO_DSU_CAR = [CAR.CELICA]
+NO_DSU_CAR = [None]
 TSS2_CAR = [None]

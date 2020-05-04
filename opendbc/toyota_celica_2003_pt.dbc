@@ -81,6 +81,8 @@ BO_ 337 PCM_CRUISE: 8 XXX
  SG_ ENGAGED : 4|1@0+ (1,0) [0|1] "" XXX
  SG_ RES_ACC : 3|1@0+ (1,0) [0|1] "" XXX
  SG_ SET_COAST : 2|1@0+ (1,0) [0|1] "" XXX
+ SG_ TURN_R : 1|1@0+ (1,0) [0|1] "" XXX
+ SG_ TURN_L : 0|1@0+ (1,0) [0|1] "" XXX
  SG_ SPEED : 23|16@0+ (0.175,0) [0|65535] "km/h" XXX
 
 BO_ 37 STEER_ANGLE_SENSOR: 8 XXX
