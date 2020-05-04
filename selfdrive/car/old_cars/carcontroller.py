@@ -52,7 +52,7 @@ class CarController():
     else:
       apply_steer_req = 1
 
-    if not enabled:
+    if not enabled and CS.pcm_acc_status:
       # send pcm acc cancel cmd if drive is disabled but pcm is still on, or if the system can't be activated
       pcm_cancel_cmd = 1
 
@@ -80,8 +80,6 @@ class CarController():
         # This prevents unexpected pedal range rescaling
         can_sends.append(create_actuator_command(self.packer, "GAS_ACTUATOR", apply_gas, frame//2))
         can_sends.append(create_actuator_command(self.packer, "BRAKE_ACTUATOR", apply_brake, frame//2))
-       # if pcm_cancel_cmd:
-       #   can_sends.append(create_acc_cancel_command(self.packer, 1, frame//2))
 
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
@@ -94,12 +92,9 @@ class CarController():
        (not (fcw_alert or steer_alert) and self.alert_active):
       send_ui = True
       self.alert_active = not self.alert_active
-    elif pcm_cancel_cmd:
-      # forcing the pcm to disengage causes a bad fault sound so play a good sound instead
+    if pcm_cancel_cmd:
       send_ui = True
-
-    
-
+      can_sends.append(create_acc_cancel_command(self.packer, 1, frame//2))
 
     #*** static msgs ***
 
