@@ -1,7 +1,7 @@
 from cereal import car
 from common.numpy_fast import clip
 from selfdrive.car import apply_toyota_steer_torque_limits, create_gas_command, make_can_msg
-from selfdrive.car.old_cars.old_cars_can import create_steer_command, create_actuator_command, create_acc_cancel_command
+from selfdrive.car.old_cars.old_cars_can import create_steer_command, create_actuator_command, create_pcm_req
 from selfdrive.car.old_cars.values import Ecu, CAR, STATIC_MSGS, SteerLimitParams
 from opendbc.can.packer import CANPacker
 
@@ -55,6 +55,8 @@ class CarController():
     if not enabled and CS.pcm_acc_status:
       # send pcm acc cancel cmd if drive is disabled but pcm is still on, or if the system can't be activated
       pcm_cancel_cmd = 1
+    else:
+      pcm_cancel_cmd = 0
 
     self.last_steer = apply_steer
     self.last_standstill = CS.out.standstill
@@ -81,6 +83,9 @@ class CarController():
         can_sends.append(create_actuator_command(self.packer, "GAS_ACTUATOR", apply_gas, frame//2))
         can_sends.append(create_actuator_command(self.packer, "BRAKE_ACTUATOR", apply_brake, frame//2))
 
+    if (frame % 33 == 0):
+      can_sends.append(create_pcm_req(self.packer, pcm_cancel_cmd, frame//2))
+
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
     # - there is something to stop displaying
@@ -94,7 +99,6 @@ class CarController():
       self.alert_active = not self.alert_active
     if pcm_cancel_cmd:
       send_ui = True
-      can_sends.append(create_acc_cancel_command(self.packer, 1, frame//2))
 
     #*** static msgs ***
 

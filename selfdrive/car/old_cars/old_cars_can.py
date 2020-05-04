@@ -22,10 +22,10 @@ def crc8_pedal(data):
         crc <<= 1
   return crc
 
-def create_acc_cancel_command(packer, disengage, idx):
+def create_pcm_req(packer, disengage, idx):
 
   values = {
-    "DISABLE_REQ": disengage * 255.,
+    "DISABLE_REQ": disengage,
     "COUNTER_PEDAL": idx & 0xF,
   }
 
