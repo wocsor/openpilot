@@ -22,10 +22,12 @@ def crc8_pedal(data):
         crc <<= 1
   return crc
 
-def create_pcm_req(packer, disengage, idx):
+def create_pcm_req(packer, disengage, blinker_l, blinker_r, idx):
 
   values = {
     "DISABLE_REQ": disengage,
+    "TURN_R_REQ" : blinker_r,
+    "TURN_L_REQ" : blinker_l,
     "COUNTER_PEDAL": idx & 0xF,
   }
 

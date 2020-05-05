@@ -22,6 +22,11 @@ class CarController():
     if CP.enableDsu: self.fake_ecus.add(Ecu.dsu)
 
     self.packer = CANPacker(dbc_name)
+    self.blinker_last = False
+    self.blinker_start_frame = 0
+    self.blinker_duration = 0
+    self.blinker_l = 0
+    self.blinker_r = 0
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, hud_alert,
              left_line, right_line, lead, left_lane_depart, right_lane_depart):
@@ -58,6 +63,23 @@ class CarController():
     else:
       pcm_cancel_cmd = 0
 
+    # ghetto courtesy blinker
+    if (CS.blinker_l or CS.blinker_r):
+      if not self.blinker_last:
+        self.blinker_last = True
+        self.blinker_start_frame = frame
+        self.blinker_l = CS.blinker_l
+        self.blinker_r = CS.blinker_r
+    else:
+      self.blinker_duration = frame - self.blinker_start_frame
+    # blink for 7 sec
+    if (self.blinker_duration > 700):
+        self.blinker_l = 0
+        self.blinker_r = 0
+        self.blinker_last = False
+        self.blinker_start_frame = 0
+        self.blinker_duration = 0
+
     self.last_steer = apply_steer
     self.last_standstill = CS.out.standstill
 
@@ -82,9 +104,8 @@ class CarController():
         # This prevents unexpected pedal range rescaling
         can_sends.append(create_actuator_command(self.packer, "GAS_ACTUATOR", apply_gas, frame//2))
         can_sends.append(create_actuator_command(self.packer, "BRAKE_ACTUATOR", apply_brake, frame//2))
-
-    if (frame % 33 == 0):
-      can_sends.append(create_pcm_req(self.packer, pcm_cancel_cmd, frame//2))
+   #if (frame % 50 == 0):
+        can_sends.append(create_pcm_req(self.packer, pcm_cancel_cmd, self.blinker_l, self.blinker_r, frame//2))
 
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display

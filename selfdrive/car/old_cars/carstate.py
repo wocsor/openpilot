@@ -60,6 +60,8 @@ class CarState(CarStateBase):
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
     ret.leftBlinker = cp.vl["PCM_CRUISE"]['TURN_L'] == 0
     ret.rightBlinker = cp.vl["PCM_CRUISE"]['TURN_R'] == 0
+    self.blinker_l = cp.vl["PCM_CRUISE"]['TURN_L'] == 0
+    self.blinker_r = cp.vl["PCM_CRUISE"]['TURN_R'] == 0
 
     ret.steeringTorque = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_DRIVER']
     ret.steeringTorqueEps = cp.vl["STEER_TORQUE_SENSOR"]['STEER_TORQUE_EPS']
