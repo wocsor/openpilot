@@ -62,7 +62,7 @@ def steer_thread():
 
       button_1_last = button_1
 
-      print("enable", enabled, "steer", actuators.steer, "accel", actuators.gas - actuators.brake)
+      # print("enable", enabled, "steer", actuators.steer, "accel", actuators.gas - actuators.brake)
 
       hud_alert = 0
       audible_alert = 0

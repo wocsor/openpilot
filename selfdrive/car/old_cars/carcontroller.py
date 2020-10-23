@@ -1,7 +1,7 @@
 from cereal import car
 from common.numpy_fast import clip
 from selfdrive.car import apply_toyota_steer_torque_limits, create_gas_command, make_can_msg
-from selfdrive.car.old_cars.old_cars_can import create_steer_command, create_actuator_command, create_acc_cancel_command
+from selfdrive.car.old_cars.old_cars_can import create_steer_command, create_pedal_command, create_brake_relay, create_brake_actuator_command
 from selfdrive.car.old_cars.values import Ecu, CAR, STATIC_MSGS, SteerLimitParams
 from opendbc.can.packer import CANPacker
 
@@ -33,13 +33,15 @@ class CarController():
       apply_gas = clip(actuators.gas, 0., 1.)
       apply_brake = clip(actuators.brake, 0., 1.)
     else:
-      apply_gas = 0. #clip(actuators.gas, 0., 1.)
-      apply_brake = 0. #clip(actuators.brake, 0., 1.)
+      apply_gas = 0.
+      apply_brake = 0.
 
     # steer torque
-    new_steer = int(round(actuators.steer * SteerLimitParams.STEER_MAX))
-    apply_steer = apply_toyota_steer_torque_limits(new_steer, self.last_steer, CS.out.steeringTorqueEps, SteerLimitParams)
-    self.steer_rate_limited = new_steer != apply_steer
+    # new_steer = int(round(actuators.steer * SteerLimitParams.STEER_MAX))
+    # apply_steer = apply_toyota_steer_torque_limits(new_steer, self.last_steer, CS.out.steeringTorqueEps, SteerLimitParams)
+    # self.steer_rate_limited = new_steer != apply_steer
+
+    apply_steer = int(round(actuators.steer * SteerLimitParams.STEER_MAX))
 
     # only cut torque when steer state is a known fault
     if CS.steer_state in [9, 25]:
@@ -59,30 +61,23 @@ class CarController():
     self.last_steer = apply_steer
     self.last_standstill = CS.out.standstill
 
+    brake_pressure = CS.brake_pressure
+    
+
+
+    print(brake_pressure, apply_brake * 1024)
+
     can_sends = []
 
     #*** control msgs ***
     #print("steer {0} {1} {2} {3}".format(apply_steer, min_lim, max_lim, CS.steer_torque_motor)
-
-    # toyota can trace shows this message at 42Hz, with counter adding alternatively 1 and 2;
-    # sending it at 100Hz seem to allow a higher rate limit, as the rate limit seems imposed
-    # on consecutive messages
-    if Ecu.fwdCamera in self.fake_ecus:
-      can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
-
-    if (frame % 2 == 0) and (CS.CP.enableGasInterceptor):
-        # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
-        # This prevents unexpected pedal range rescaling
-        can_sends.append(create_gas_command(self.packer, apply_gas, frame//2))
-
+    # print(enabled)
     if (frame % 2 == 0):
         # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
         # This prevents unexpected pedal range rescaling
-        can_sends.append(create_actuator_command(self.packer, "GAS_ACTUATOR", apply_gas, frame//2))
-        can_sends.append(create_actuator_command(self.packer, "BRAKE_ACTUATOR", apply_brake, frame//2))
-        if pcm_cancel_cmd:
-          can_sends.append(create_acc_cancel_command(self.packer, 255., frame//2))
-
+        can_sends.append(create_brake_actuator_command(self.packer, brake_pressure, apply_brake, frame//2))
+        can_sends.append(create_steer_command(self.packer, apply_steer_req, apply_steer, frame//2))
+        can_sends.append(create_pedal_command(self.packer, apply_gas, frame//2))
 
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
@@ -98,24 +93,5 @@ class CarController():
     elif pcm_cancel_cmd:
       # forcing the pcm to disengage causes a bad fault sound so play a good sound instead
       send_ui = True
-
-    #*** static msgs ***
-
-    for (addr, ecu, cars, bus, fr_step, vl) in STATIC_MSGS:
-      if frame % fr_step == 0:
-
-        # special cases
-        if fr_step == 5 and ecu == Ecu.fwdCamera and bus == 1:
-          cnt = int(((frame / 5) % 7) + 1) << 5
-          vl = bytes([cnt]) + vl
-        elif addr in (0x489, 0x48a) and bus == 0:
-          # add counter for those 2 messages (last 4 bits)
-          cnt = int((frame/100)%0xf) + 1
-          if addr == 0x48a:
-            # 0x48a has a 8 preceding the counter
-            cnt += 1 << 7
-          vl += bytes([cnt])
-
-        can_sends.append(make_can_msg(addr, vl, bus))
 
     return can_sends

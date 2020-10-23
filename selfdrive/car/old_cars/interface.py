@@ -19,7 +19,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.carName = "old_cars"
     # TODO: old_cars_safety
-    ret.safetyModel = car.CarParams.SafetyModel.toyota
+    ret.safetyModel = car.CarParams.SafetyModel.allOutput
 
     ret.steerActuatorDelay = 0.12  # Default delay, Prius has larger delay
     ret.steerLimitTimer = 0.4
@@ -88,11 +88,11 @@ class CarInterface(CarInterfaceBase):
   def update(self, c, can_strings):
     # ******************* do can recv *******************
     self.cp.update_strings(can_strings)
-    #self.cp_cam.update_strings(can_strings)
+    self.cp_cam.update_strings(can_strings)
 
-    ret = self.CS.update(self.cp, None)
+    ret = self.CS.update(self.cp, self.cp_cam)
 
-    ret.canValid = self.cp.can_valid #and self.cp_cam.can_valid
+    ret.canValid = self.cp.can_valid and self.cp_cam.can_valid
     ret.yawRate = self.VM.yaw_rate(ret.steeringAngle * CV.DEG_TO_RAD, ret.vEgo)
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
     ret.buttonEvents = []
