@@ -132,7 +132,7 @@ def create_brake_actuator_command(packer, brake_pressure, brake_amount, idx):
   }
 
   if enable:
-    values["PRESSURE_TARGET"] = brake_amount * 1024.
+    values["PRESSURE_TARGET"] = brake_amount * 176.
 
   dat = packer.make_can_msg("BRAKE_ACTUATOR", 2, values)[2]
 

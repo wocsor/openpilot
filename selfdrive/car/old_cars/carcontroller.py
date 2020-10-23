@@ -65,7 +65,7 @@ class CarController():
     
 
 
-    print(brake_pressure, apply_brake * 1024)
+    print(brake_pressure, apply_brake * 176)
 
     can_sends = []
 
